@@ -13,7 +13,7 @@ export default function Navbar() {
           </div>
           <Input
             type="text"
-            placeholder="Search"
+            placeholder="Enter a search term..."
             className="mt-4 max-w-lg ml-auto border-0 border-b-4 border-gray-300 focus-visible:ring-0"
           />
         </div>
