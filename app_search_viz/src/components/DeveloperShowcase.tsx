@@ -139,10 +139,12 @@ export default function DeveloperShowcase() {
   };
 
   const loadSearchTermData = async () => {
+    const term = "japan"; // Hard-coded search term for testing
+    console.log("Loading search term data for:", term);
     try {
-      const data = await getSearchTermData();
+      const data = await getSearchTermData(term);
+      console.log("Search Term Data received:", data);
       setSearchTermData(data);
-      console.log("Search Term Data:", data);
     } catch (error) {
       console.error("Failed to load search term data:", error);
     }
@@ -383,21 +385,21 @@ export default function DeveloperShowcase() {
             <TabsList className="grid w-full grid-cols-3 bg-muted">
               <TabsTrigger
                 value="country-data"
-                className="font-mono font-black uppercase tracking-wide"
+                className="font-mono font-black uppercase tracking-wide data-[state=active]:px-2 data-[state=active]:py-1 data-[state=active]:bg-secondary data-[state=active]:text-secondary-foreground"
                 onClick={loadCountryData}
               >
                 Load Mexico Data
               </TabsTrigger>
               <TabsTrigger
                 value="categories"
-                className="font-mono font-black uppercase tracking-wide"
+                className="font-mono font-black uppercase tracking-wide data-[state=active]:px-2 data-[state=active]:py-1 data-[state=active]:bg-secondary data-[state=active]:text-secondary-foreground"
                 onClick={loadSearchTermCategories}
               >
-                List Search Terms
+                List Available Search Terms
               </TabsTrigger>
               <TabsTrigger
                 value="terms-data"
-                className="font-mono font-black uppercase tracking-wide"
+                className="font-mono font-black uppercase tracking-wide data-[state=active]:px-2 data-[state=active]:py-1 data-[state=active]:bg-secondary data-[state=active]:text-secondary-foreground"
                 onClick={loadSearchTermData}
               >
                 Load Search Term Data
@@ -571,89 +573,19 @@ export default function DeveloperShowcase() {
 
             <TabsContent value="terms-data">
               <div className="border-4 border-border overflow-hidden">
-                {searchTermData &&
-                Array.isArray(searchTermData) &&
-                searchTermData.length > 0 ? (
-                  <Table>
-                    <TableHeader>
-                      <TableRow
-                        style={{ backgroundColor: "#000000" }}
-                        className="hover:bg-black"
-                      >
-                        <TableHead
-                          style={headerStyle}
-                          className="font-mono font-black uppercase border-r-2 border-border"
-                        >
-                          Country
-                        </TableHead>
-                        <TableHead
-                          style={headerStyle}
-                          className="font-mono font-black uppercase border-r-2 border-border"
-                        >
-                          Category
-                        </TableHead>
-                        <TableHead
-                          style={headerStyle}
-                          className="font-mono font-black uppercase border-r-2 border-border"
-                        >
-                          Latest Value
-                        </TableHead>
-                        <TableHead
-                          style={headerStyle}
-                          className="font-mono font-black uppercase border-r-2 border-border"
-                        >
-                          Unit
-                        </TableHead>
-                        <TableHead
-                          style={headerStyle}
-                          className="font-mono font-black uppercase"
-                        >
-                          Date
-                        </TableHead>
-                      </TableRow>
-                    </TableHeader>
-                    <TableBody>
-                      {searchTermData.map((item: any, index: number) => (
-                        <TableRow
-                          key={index}
-                          className="hover:bg-muted/50 border-b-2 border-border"
-                        >
-                          <TableCell className="font-mono font-bold text-foreground border-r-2 border-border">
-                            {item.Country || "N/A"}
-                          </TableCell>
-                          <TableCell className="font-mono text-foreground border-r-2 border-border">
-                            {item.Category || "N/A"}
-                          </TableCell>
-                          <TableCell className="font-mono text-foreground border-r-2 border-border">
-                            <Badge className="bg-primary text-primary-foreground font-mono font-black">
-                              {item.LatestValue !== null &&
-                              item.LatestValue !== undefined
-                                ? typeof item.LatestValue === "number"
-                                  ? item.LatestValue.toLocaleString()
-                                  : item.LatestValue
-                                : "N/A"}
-                            </Badge>
-                          </TableCell>
-                          <TableCell className="font-mono text-muted-foreground border-r-2 border-border">
-                            {item.Unit || "N/A"}
-                          </TableCell>
-                          <TableCell className="font-mono text-muted-foreground">
-                            {item.LatestValueDate
-                              ? new Date(
-                                  item.LatestValueDate
-                                ).toLocaleDateString()
-                              : "N/A"}
-                          </TableCell>
-                        </TableRow>
-                      ))}
-                    </TableBody>
-                  </Table>
+                {searchTermData ? (
+                  <div className="p-4">
+                    <h3 className="font-mono font-black uppercase text-lg mb-4">
+                      Raw JSON Data:
+                    </h3>
+                    <pre className="bg-muted p-4 rounded-lg overflow-auto text-sm font-mono">
+                      {JSON.stringify(searchTermData, null, 2)}
+                    </pre>
+                  </div>
                 ) : (
                   <div className="p-8 text-center">
                     <p className="font-mono text-muted-foreground text-lg">
-                      {searchTermData
-                        ? "No data available"
-                        : 'Click "Load Search Term Data" to fetch data'}
+                      Click "Load Search Term Data" to fetch data
                     </p>
                   </div>
                 )}
