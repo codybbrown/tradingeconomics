@@ -378,290 +378,288 @@ export default function DeveloperShowcase() {
             <h2 className="font-mono text-3xl font-black text-foreground uppercase tracking-tight">
               API DATA
             </h2>
-            <div className="flex gap-2">
-              <Button onClick={loadCountryData}>Load Mexico Data</Button>
-              <Button onClick={loadSearchTermCategories}>
-                List Search Terms
-              </Button>
-              <Button onClick={loadSearchTermData}>
-                Load Search Term Data
-              </Button>
-            </div>
           </div>
-          <Tabs defaultValue="account" className="w-[400px]">
-            <TabsList>
-              <TabsTrigger value="account">Account</TabsTrigger>
-              <TabsTrigger value="password">Password</TabsTrigger>
+          <Tabs defaultValue="country-data" className="w-full">
+            <TabsList className="grid w-full grid-cols-3 bg-muted">
+              <TabsTrigger
+                value="country-data"
+                className="font-mono font-black uppercase tracking-wide"
+                onClick={loadCountryData}
+              >
+                Load Mexico Data
+              </TabsTrigger>
+              <TabsTrigger
+                value="categories"
+                className="font-mono font-black uppercase tracking-wide"
+                onClick={loadSearchTermCategories}
+              >
+                List Search Terms
+              </TabsTrigger>
+              <TabsTrigger
+                value="terms-data"
+                className="font-mono font-black uppercase tracking-wide"
+                onClick={loadSearchTermData}
+              >
+                Load Search Term Data
+              </TabsTrigger>
             </TabsList>
-            <TabsContent value="account">
-              Make changes to your account here.
+
+            <TabsContent value="country-data">
+              <div className="border-4 border-border overflow-hidden">
+                {countryData &&
+                Array.isArray(countryData) &&
+                countryData.length > 0 ? (
+                  <Table>
+                    <TableHeader>
+                      <TableRow
+                        style={{ backgroundColor: "#000000" }}
+                        className="hover:bg-black"
+                      >
+                        <TableHead
+                          style={headerStyle}
+                          className="font-mono font-black uppercase border-r-2 border-border"
+                        >
+                          Category
+                        </TableHead>
+                        <TableHead
+                          style={headerStyle}
+                          className="font-mono font-black uppercase border-r-2 border-border"
+                        >
+                          Latest Value
+                        </TableHead>
+                        <TableHead
+                          style={headerStyle}
+                          className="font-mono font-black uppercase border-r-2 border-border"
+                        >
+                          Previous Value
+                        </TableHead>
+                        <TableHead
+                          style={headerStyle}
+                          className="font-mono font-black uppercase border-r-2 border-border"
+                        >
+                          Unit
+                        </TableHead>
+                        <TableHead
+                          style={headerStyle}
+                          className="font-mono font-black uppercase border-r-2 border-border"
+                        >
+                          Group
+                        </TableHead>
+                        <TableHead
+                          style={headerStyle}
+                          className="font-mono font-black uppercase"
+                        >
+                          Date
+                        </TableHead>
+                      </TableRow>
+                    </TableHeader>
+                    <TableBody>
+                      {countryData.map((item: any, index: number) => (
+                        <TableRow
+                          key={index}
+                          className="hover:bg-muted/50 border-b-2 border-border"
+                        >
+                          <TableCell className="font-mono font-bold text-foreground border-r-2 border-border">
+                            {item.Category || "N/A"}
+                          </TableCell>
+                          <TableCell className="font-mono text-foreground border-r-2 border-border">
+                            <Badge className="bg-primary text-primary-foreground font-mono font-black">
+                              {item.LatestValue !== null &&
+                              item.LatestValue !== undefined
+                                ? typeof item.LatestValue === "number"
+                                  ? item.LatestValue.toLocaleString()
+                                  : item.LatestValue
+                                : "N/A"}
+                            </Badge>
+                          </TableCell>
+                          <TableCell className="font-mono text-muted-foreground border-r-2 border-border">
+                            {item.PreviousValue !== null &&
+                            item.PreviousValue !== undefined
+                              ? typeof item.PreviousValue === "number"
+                                ? item.PreviousValue.toLocaleString()
+                                : item.PreviousValue
+                              : "N/A"}
+                          </TableCell>
+                          <TableCell className="font-mono text-muted-foreground border-r-2 border-border">
+                            {item.Unit || "N/A"}
+                          </TableCell>
+                          <TableCell className="font-mono text-muted-foreground border-r-2 border-border">
+                            <Badge
+                              variant="outline"
+                              className="font-mono font-bold border-2 border-border"
+                            >
+                              {item.CategoryGroup || "N/A"}
+                            </Badge>
+                          </TableCell>
+                          <TableCell className="font-mono text-muted-foreground">
+                            {item.LatestValueDate
+                              ? new Date(
+                                  item.LatestValueDate
+                                ).toLocaleDateString()
+                              : "N/A"}
+                          </TableCell>
+                        </TableRow>
+                      ))}
+                    </TableBody>
+                  </Table>
+                ) : (
+                  <div className="p-8 text-center">
+                    <p className="font-mono text-muted-foreground text-lg">
+                      {countryData
+                        ? "No data available"
+                        : 'Click "Load Mexico Data" to fetch API data'}
+                    </p>
+                  </div>
+                )}
+              </div>
             </TabsContent>
-            <TabsContent value="password">
-              Change your password here.
+
+            <TabsContent value="categories">
+              <div className="border-4 border-border overflow-hidden">
+                {searchCategoriesData &&
+                Array.isArray(searchCategoriesData) &&
+                searchCategoriesData.length > 0 ? (
+                  <Table>
+                    <TableHeader>
+                      <TableRow
+                        style={{ backgroundColor: "#000000" }}
+                        className="hover:bg-black"
+                      >
+                        <TableHead
+                          style={headerStyle}
+                          className="font-mono font-black uppercase border-r-2 border-border"
+                        >
+                          #
+                        </TableHead>
+                        <TableHead
+                          style={headerStyle}
+                          className="font-mono font-black uppercase"
+                        >
+                          Category
+                        </TableHead>
+                      </TableRow>
+                    </TableHeader>
+                    <TableBody>
+                      {searchCategoriesData.map((item: any, index: number) => (
+                        <TableRow
+                          key={index}
+                          className="hover:bg-muted/50 border-b-2 border-border"
+                        >
+                          <TableCell className="font-mono font-bold text-foreground border-r-2 border-border">
+                            <Badge className="bg-primary text-primary-foreground font-mono font-black">
+                              {index + 1}
+                            </Badge>
+                          </TableCell>
+                          <TableCell className="font-mono text-foreground">
+                            {item.Categories || "N/A"}
+                          </TableCell>
+                        </TableRow>
+                      ))}
+                    </TableBody>
+                  </Table>
+                ) : (
+                  <div className="p-8 text-center">
+                    <p className="font-mono text-muted-foreground text-lg">
+                      {searchCategoriesData
+                        ? "No data available"
+                        : 'Click "List Search Terms" to fetch categories'}
+                    </p>
+                  </div>
+                )}
+              </div>
+            </TabsContent>
+
+            <TabsContent value="terms-data">
+              <div className="border-4 border-border overflow-hidden">
+                {searchTermData &&
+                Array.isArray(searchTermData) &&
+                searchTermData.length > 0 ? (
+                  <Table>
+                    <TableHeader>
+                      <TableRow
+                        style={{ backgroundColor: "#000000" }}
+                        className="hover:bg-black"
+                      >
+                        <TableHead
+                          style={headerStyle}
+                          className="font-mono font-black uppercase border-r-2 border-border"
+                        >
+                          Country
+                        </TableHead>
+                        <TableHead
+                          style={headerStyle}
+                          className="font-mono font-black uppercase border-r-2 border-border"
+                        >
+                          Category
+                        </TableHead>
+                        <TableHead
+                          style={headerStyle}
+                          className="font-mono font-black uppercase border-r-2 border-border"
+                        >
+                          Latest Value
+                        </TableHead>
+                        <TableHead
+                          style={headerStyle}
+                          className="font-mono font-black uppercase border-r-2 border-border"
+                        >
+                          Unit
+                        </TableHead>
+                        <TableHead
+                          style={headerStyle}
+                          className="font-mono font-black uppercase"
+                        >
+                          Date
+                        </TableHead>
+                      </TableRow>
+                    </TableHeader>
+                    <TableBody>
+                      {searchTermData.map((item: any, index: number) => (
+                        <TableRow
+                          key={index}
+                          className="hover:bg-muted/50 border-b-2 border-border"
+                        >
+                          <TableCell className="font-mono font-bold text-foreground border-r-2 border-border">
+                            {item.Country || "N/A"}
+                          </TableCell>
+                          <TableCell className="font-mono text-foreground border-r-2 border-border">
+                            {item.Category || "N/A"}
+                          </TableCell>
+                          <TableCell className="font-mono text-foreground border-r-2 border-border">
+                            <Badge className="bg-primary text-primary-foreground font-mono font-black">
+                              {item.LatestValue !== null &&
+                              item.LatestValue !== undefined
+                                ? typeof item.LatestValue === "number"
+                                  ? item.LatestValue.toLocaleString()
+                                  : item.LatestValue
+                                : "N/A"}
+                            </Badge>
+                          </TableCell>
+                          <TableCell className="font-mono text-muted-foreground border-r-2 border-border">
+                            {item.Unit || "N/A"}
+                          </TableCell>
+                          <TableCell className="font-mono text-muted-foreground">
+                            {item.LatestValueDate
+                              ? new Date(
+                                  item.LatestValueDate
+                                ).toLocaleDateString()
+                              : "N/A"}
+                          </TableCell>
+                        </TableRow>
+                      ))}
+                    </TableBody>
+                  </Table>
+                ) : (
+                  <div className="p-8 text-center">
+                    <p className="font-mono text-muted-foreground text-lg">
+                      {searchTermData
+                        ? "No data available"
+                        : 'Click "Load Search Term Data" to fetch data'}
+                    </p>
+                  </div>
+                )}
+              </div>
             </TabsContent>
           </Tabs>
-          {/* Country Data Table */}
-          <div className="border-4 border-border overflow-hidden">
-            {countryData &&
-            Array.isArray(countryData) &&
-            countryData.length > 0 ? (
-              <Table>
-                <TableHeader>
-                  <TableRow
-                    style={{ backgroundColor: "#000000" }}
-                    className="hover:bg-black"
-                  >
-                    <TableHead
-                      style={headerStyle}
-                      className="font-mono font-black uppercase border-r-2 border-border"
-                    >
-                      Category
-                    </TableHead>
-                    <TableHead
-                      style={headerStyle}
-                      className="font-mono font-black uppercase border-r-2 border-border"
-                    >
-                      Latest Value
-                    </TableHead>
-                    <TableHead
-                      style={headerStyle}
-                      className="font-mono font-black uppercase border-r-2 border-border"
-                    >
-                      Previous Value
-                    </TableHead>
-                    <TableHead
-                      style={headerStyle}
-                      className="font-mono font-black uppercase border-r-2 border-border"
-                    >
-                      Unit
-                    </TableHead>
-                    <TableHead
-                      style={headerStyle}
-                      className="font-mono font-black uppercase border-r-2 border-border"
-                    >
-                      Group
-                    </TableHead>
-                    <TableHead
-                      style={headerStyle}
-                      className="font-mono font-black uppercase"
-                    >
-                      Date
-                    </TableHead>
-                  </TableRow>
-                </TableHeader>
-                <TableBody>
-                  {countryData.map((item: any, index: number) => (
-                    <TableRow
-                      key={index}
-                      className="hover:bg-muted/50 border-b-2 border-border"
-                    >
-                      <TableCell className="font-mono font-bold text-foreground border-r-2 border-border">
-                        {item.Category || "N/A"}
-                      </TableCell>
-                      <TableCell className="font-mono text-foreground border-r-2 border-border">
-                        <Badge className="bg-primary text-primary-foreground font-mono font-black">
-                          {item.LatestValue !== null &&
-                          item.LatestValue !== undefined
-                            ? typeof item.LatestValue === "number"
-                              ? item.LatestValue.toLocaleString()
-                              : item.LatestValue
-                            : "N/A"}
-                        </Badge>
-                      </TableCell>
-                      <TableCell className="font-mono text-muted-foreground border-r-2 border-border">
-                        {item.PreviousValue !== null &&
-                        item.PreviousValue !== undefined
-                          ? typeof item.PreviousValue === "number"
-                            ? item.PreviousValue.toLocaleString()
-                            : item.PreviousValue
-                          : "N/A"}
-                      </TableCell>
-                      <TableCell className="font-mono text-muted-foreground border-r-2 border-border">
-                        {item.Unit || "N/A"}
-                      </TableCell>
-                      <TableCell className="font-mono text-muted-foreground border-r-2 border-border">
-                        <Badge
-                          variant="outline"
-                          className="font-mono font-bold border-2 border-border"
-                        >
-                          {item.CategoryGroup || "N/A"}
-                        </Badge>
-                      </TableCell>
-                      <TableCell className="font-mono text-muted-foreground">
-                        {item.LatestValueDate
-                          ? new Date(item.LatestValueDate).toLocaleDateString()
-                          : "N/A"}
-                      </TableCell>
-                    </TableRow>
-                  ))}
-                </TableBody>
-              </Table>
-            ) : (
-              <div className="p-8 text-center">
-                <p className="font-mono text-muted-foreground text-lg">
-                  {countryData
-                    ? "No data available"
-                    : 'Click "Load Mexico Data" to fetch API data'}
-                </p>
-              </div>
-            )}
-          </div>
-          {/* Search Term Categories Table */}
-          <div className="mt-12">
-            <div className="flex justify-between items-center mb-6">
-              <h2 className="font-mono text-3xl font-black text-foreground uppercase tracking-tight">
-                SEARCH TERM CATEGORIES
-              </h2>
-            </div>
-            <div className="border-4 border-border overflow-hidden">
-              {searchCategoriesData &&
-              Array.isArray(searchCategoriesData) &&
-              searchCategoriesData.length > 0 ? (
-                <Table>
-                  <TableHeader>
-                    <TableRow
-                      style={{ backgroundColor: "#000000" }}
-                      className="hover:bg-black"
-                    >
-                      <TableHead
-                        style={headerStyle}
-                        className="font-mono font-black uppercase border-r-2 border-border"
-                      >
-                        #
-                      </TableHead>
-                      <TableHead
-                        style={headerStyle}
-                        className="font-mono font-black uppercase"
-                      >
-                        Category
-                      </TableHead>
-                    </TableRow>
-                  </TableHeader>
-                  <TableBody>
-                    {searchCategoriesData.map((item: any, index: number) => (
-                      <TableRow
-                        key={index}
-                        className="hover:bg-muted/50 border-b-2 border-border"
-                      >
-                        <TableCell className="font-mono font-bold text-foreground border-r-2 border-border">
-                          <Badge className="bg-primary text-primary-foreground font-mono font-black">
-                            {index + 1}
-                          </Badge>
-                        </TableCell>
-                        <TableCell className="font-mono text-foreground">
-                          {item.Categories || "N/A"}
-                        </TableCell>
-                      </TableRow>
-                    ))}
-                  </TableBody>
-                </Table>
-              ) : (
-                <div className="p-8 text-center">
-                  <p className="font-mono text-muted-foreground text-lg">
-                    {searchCategoriesData
-                      ? "No data available"
-                      : 'Click "List Search Terms" to fetch categories'}
-                  </p>
-                </div>
-              )}
-            </div>
-          </div>
-          {/* Search Term Data Table */}
-          <div className="mt-12">
-            <div className="flex justify-between items-center mb-6">
-              <h2 className="font-mono text-3xl font-black text-foreground uppercase tracking-tight">
-                SEARCH TERM DATA
-              </h2>
-            </div>
-            <div className="border-4 border-border overflow-hidden">
-              {searchTermData &&
-              Array.isArray(searchTermData) &&
-              searchTermData.length > 0 ? (
-                <Table>
-                  <TableHeader>
-                    <TableRow
-                      style={{ backgroundColor: "#000000" }}
-                      className="hover:bg-black"
-                    >
-                      <TableHead
-                        style={headerStyle}
-                        className="font-mono font-black uppercase border-r-2 border-border"
-                      >
-                        Country
-                      </TableHead>
-                      <TableHead
-                        style={headerStyle}
-                        className="font-mono font-black uppercase border-r-2 border-border"
-                      >
-                        Category
-                      </TableHead>
-                      <TableHead
-                        style={headerStyle}
-                        className="font-mono font-black uppercase border-r-2 border-border"
-                      >
-                        Latest Value
-                      </TableHead>
-                      <TableHead
-                        style={headerStyle}
-                        className="font-mono font-black uppercase border-r-2 border-border"
-                      >
-                        Unit
-                      </TableHead>
-                      <TableHead
-                        style={headerStyle}
-                        className="font-mono font-black uppercase"
-                      >
-                        Date
-                      </TableHead>
-                    </TableRow>
-                  </TableHeader>
-                  <TableBody>
-                    {searchTermData.map((item: any, index: number) => (
-                      <TableRow
-                        key={index}
-                        className="hover:bg-muted/50 border-b-2 border-border"
-                      >
-                        <TableCell className="font-mono font-bold text-foreground border-r-2 border-border">
-                          {item.Country || "N/A"}
-                        </TableCell>
-                        <TableCell className="font-mono text-foreground border-r-2 border-border">
-                          {item.Category || "N/A"}
-                        </TableCell>
-                        <TableCell className="font-mono text-foreground border-r-2 border-border">
-                          <Badge className="bg-primary text-primary-foreground font-mono font-black">
-                            {item.LatestValue !== null &&
-                            item.LatestValue !== undefined
-                              ? typeof item.LatestValue === "number"
-                                ? item.LatestValue.toLocaleString()
-                                : item.LatestValue
-                              : "N/A"}
-                          </Badge>
-                        </TableCell>
-                        <TableCell className="font-mono text-muted-foreground border-r-2 border-border">
-                          {item.Unit || "N/A"}
-                        </TableCell>
-                        <TableCell className="font-mono text-muted-foreground">
-                          {item.LatestValueDate
-                            ? new Date(
-                                item.LatestValueDate
-                              ).toLocaleDateString()
-                            : "N/A"}
-                        </TableCell>
-                      </TableRow>
-                    ))}
-                  </TableBody>
-                </Table>
-              ) : (
-                <div className="p-8 text-center">
-                  <p className="font-mono text-muted-foreground text-lg">
-                    {searchTermData
-                      ? "No data available"
-                      : 'Click "Load Search Term Data" to fetch data'}
-                  </p>
-                </div>
-              )}
-            </div>
-          </div>
         </div>
       </main>
     </div>
