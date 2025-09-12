@@ -113,35 +113,37 @@ export default function DeveloperShowcase() {
   const [searchTerm, setSearchTerm] = useState("");
   const [filteredTableData, setFilteredTableData] = useState(mockTableData);
   const [filteredCardData, setFilteredCardData] = useState(mockCardData);
-  const [apiData, setApiData] = useState<any>(null);
+  const [countryData, setCountryData] = useState<any>(null);
+  const [searchCategoriesData, setSearchCategoriesData] = useState<any>(null);
+  const [searchTermData, setSearchTermData] = useState<any>(null);
 
   const loadCountryData = async () => {
     try {
       const data = await getCountryData("mexico");
-      setApiData(data);
-      console.log("API Data:", data);
+      setCountryData(data);
+      console.log("Country Data:", data);
     } catch (error) {
-      console.error("Failed to load data:", error);
+      console.error("Failed to load country data:", error);
     }
   };
 
   const loadSearchTermCategories = async () => {
     try {
       const data = await listSearchTerms();
-      setApiData(data);
-      console.log("API Data:", data);
+      setSearchCategoriesData(data);
+      console.log("Search Categories Data:", data);
     } catch (error) {
-      console.error("Failed to load data:", error);
+      console.error("Failed to load search categories:", error);
     }
   };
 
   const loadSearchTermData = async () => {
     try {
       const data = await getSearchTermData();
-      setApiData(data);
-      console.log("API Data:", data);
+      setSearchTermData(data);
+      console.log("Search Term Data:", data);
     } catch (error) {
-      console.error("Failed to load data:", error);
+      console.error("Failed to load search term data:", error);
     }
   };
 
@@ -385,8 +387,11 @@ export default function DeveloperShowcase() {
               </Button>
             </div>
           </div>
+          {/* Country Data Table */}
           <div className="border-4 border-border overflow-hidden">
-            {apiData && Array.isArray(apiData) && apiData.length > 0 ? (
+            {countryData &&
+            Array.isArray(countryData) &&
+            countryData.length > 0 ? (
               <Table>
                 <TableHeader>
                   <TableRow
@@ -432,7 +437,7 @@ export default function DeveloperShowcase() {
                   </TableRow>
                 </TableHeader>
                 <TableBody>
-                  {apiData.map((item: any, index: number) => (
+                  {countryData.map((item: any, index: number) => (
                     <TableRow
                       key={index}
                       className="hover:bg-muted/50 border-b-2 border-border"
@@ -481,12 +486,168 @@ export default function DeveloperShowcase() {
             ) : (
               <div className="p-8 text-center">
                 <p className="font-mono text-muted-foreground text-lg">
-                  {apiData
+                  {countryData
                     ? "No data available"
                     : 'Click "Load Mexico Data" to fetch API data'}
                 </p>
               </div>
             )}
+          </div>
+          {/* Search Term Categories Table */}
+          <div className="mt-12">
+            <div className="flex justify-between items-center mb-6">
+              <h2 className="font-mono text-3xl font-black text-foreground uppercase tracking-tight">
+                SEARCH TERM CATEGORIES
+              </h2>
+            </div>
+            <div className="border-4 border-border overflow-hidden">
+              {searchCategoriesData &&
+              Array.isArray(searchCategoriesData) &&
+              searchCategoriesData.length > 0 ? (
+                <Table>
+                  <TableHeader>
+                    <TableRow
+                      style={{ backgroundColor: "#000000" }}
+                      className="hover:bg-black"
+                    >
+                      <TableHead
+                        style={headerStyle}
+                        className="font-mono font-black uppercase border-r-2 border-border"
+                      >
+                        #
+                      </TableHead>
+                      <TableHead
+                        style={headerStyle}
+                        className="font-mono font-black uppercase"
+                      >
+                        Category
+                      </TableHead>
+                    </TableRow>
+                  </TableHeader>
+                  <TableBody>
+                    {searchCategoriesData.map((item: any, index: number) => (
+                      <TableRow
+                        key={index}
+                        className="hover:bg-muted/50 border-b-2 border-border"
+                      >
+                        <TableCell className="font-mono font-bold text-foreground border-r-2 border-border">
+                          <Badge className="bg-primary text-primary-foreground font-mono font-black">
+                            {index + 1}
+                          </Badge>
+                        </TableCell>
+                        <TableCell className="font-mono text-foreground">
+                          {item.Categories || "N/A"}
+                        </TableCell>
+                      </TableRow>
+                    ))}
+                  </TableBody>
+                </Table>
+              ) : (
+                <div className="p-8 text-center">
+                  <p className="font-mono text-muted-foreground text-lg">
+                    {searchCategoriesData
+                      ? "No data available"
+                      : 'Click "List Search Terms" to fetch categories'}
+                  </p>
+                </div>
+              )}
+            </div>
+          </div>
+          {/* Search Term Data Table */}
+          <div className="mt-12">
+            <div className="flex justify-between items-center mb-6">
+              <h2 className="font-mono text-3xl font-black text-foreground uppercase tracking-tight">
+                SEARCH TERM DATA
+              </h2>
+            </div>
+            <div className="border-4 border-border overflow-hidden">
+              {searchTermData &&
+              Array.isArray(searchTermData) &&
+              searchTermData.length > 0 ? (
+                <Table>
+                  <TableHeader>
+                    <TableRow
+                      style={{ backgroundColor: "#000000" }}
+                      className="hover:bg-black"
+                    >
+                      <TableHead
+                        style={headerStyle}
+                        className="font-mono font-black uppercase border-r-2 border-border"
+                      >
+                        Country
+                      </TableHead>
+                      <TableHead
+                        style={headerStyle}
+                        className="font-mono font-black uppercase border-r-2 border-border"
+                      >
+                        Category
+                      </TableHead>
+                      <TableHead
+                        style={headerStyle}
+                        className="font-mono font-black uppercase border-r-2 border-border"
+                      >
+                        Latest Value
+                      </TableHead>
+                      <TableHead
+                        style={headerStyle}
+                        className="font-mono font-black uppercase border-r-2 border-border"
+                      >
+                        Unit
+                      </TableHead>
+                      <TableHead
+                        style={headerStyle}
+                        className="font-mono font-black uppercase"
+                      >
+                        Date
+                      </TableHead>
+                    </TableRow>
+                  </TableHeader>
+                  <TableBody>
+                    {searchTermData.map((item: any, index: number) => (
+                      <TableRow
+                        key={index}
+                        className="hover:bg-muted/50 border-b-2 border-border"
+                      >
+                        <TableCell className="font-mono font-bold text-foreground border-r-2 border-border">
+                          {item.Country || "N/A"}
+                        </TableCell>
+                        <TableCell className="font-mono text-foreground border-r-2 border-border">
+                          {item.Category || "N/A"}
+                        </TableCell>
+                        <TableCell className="font-mono text-foreground border-r-2 border-border">
+                          <Badge className="bg-primary text-primary-foreground font-mono font-black">
+                            {item.LatestValue !== null &&
+                            item.LatestValue !== undefined
+                              ? typeof item.LatestValue === "number"
+                                ? item.LatestValue.toLocaleString()
+                                : item.LatestValue
+                              : "N/A"}
+                          </Badge>
+                        </TableCell>
+                        <TableCell className="font-mono text-muted-foreground border-r-2 border-border">
+                          {item.Unit || "N/A"}
+                        </TableCell>
+                        <TableCell className="font-mono text-muted-foreground">
+                          {item.LatestValueDate
+                            ? new Date(
+                                item.LatestValueDate
+                              ).toLocaleDateString()
+                            : "N/A"}
+                        </TableCell>
+                      </TableRow>
+                    ))}
+                  </TableBody>
+                </Table>
+              ) : (
+                <div className="p-8 text-center">
+                  <p className="font-mono text-muted-foreground text-lg">
+                    {searchTermData
+                      ? "No data available"
+                      : 'Click "Load Search Term Data" to fetch data'}
+                  </p>
+                </div>
+              )}
+            </div>
           </div>
         </div>
       </main>
