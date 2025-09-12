@@ -22,7 +22,11 @@ import {
 import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 
-import { getCountryData, listSearchTerms } from "@/lib/api-helpers";
+import {
+  getCountryData,
+  listSearchTerms,
+  getStockDescriptions,
+} from "@/lib/api-helpers";
 
 const mockTableData = [
   {
@@ -112,6 +116,10 @@ export default function DeveloperShowcase() {
   const [filteredCardData, setFilteredCardData] = useState(mockCardData);
   const [countryData, setCountryData] = useState<any>(null);
   const [searchCategoriesData, setSearchCategoriesData] = useState<any>(null);
+  const [stockDescriptionsData, setStockDescriptionsData] = useState<any>(null);
+  const [tickerSymbols, setTickerSymbols] = useState<string>(
+    "aapl:us,msft:us,googl:us"
+  );
 
   const loadCountryData = async () => {
     try {
@@ -130,6 +138,20 @@ export default function DeveloperShowcase() {
       console.log("Search Categories Data:", data);
     } catch (error) {
       console.error("Failed to load search categories:", error);
+    }
+  };
+
+  const loadStockDescriptions = async () => {
+    try {
+      if (!tickerSymbols.trim()) {
+        console.error("Please enter at least one ticker symbol");
+        return;
+      }
+      const data = await getStockDescriptions(tickerSymbols.trim());
+      setStockDescriptionsData(data);
+      console.log("Stock Descriptions Data:", data);
+    } catch (error) {
+      console.error("Failed to load stock descriptions:", error);
     }
   };
 
@@ -365,7 +387,7 @@ export default function DeveloperShowcase() {
             </h2>
           </div>
           <Tabs defaultValue="country-data" className="w-full">
-            <TabsList className="grid w-full grid-cols-2 bg-muted">
+            <TabsList className="grid w-full grid-cols-3 bg-muted">
               <TabsTrigger
                 value="country-data"
                 className="font-mono font-black uppercase tracking-wide data-[state=active]:px-2 data-[state=active]:py-1 data-[state=active]:bg-secondary data-[state=active]:text-secondary-foreground"
@@ -379,6 +401,13 @@ export default function DeveloperShowcase() {
                 onClick={loadSearchTermCategories}
               >
                 List Available Search Terms
+              </TabsTrigger>
+              <TabsTrigger
+                value="stock-descriptions"
+                className="font-mono font-black uppercase tracking-wide data-[state=active]:px-2 data-[state=active]:py-1 data-[state=active]:bg-secondary data-[state=active]:text-secondary-foreground"
+                onClick={loadStockDescriptions}
+              >
+                Stock Descriptions
               </TabsTrigger>
             </TabsList>
 
@@ -541,6 +570,129 @@ export default function DeveloperShowcase() {
                       {searchCategoriesData
                         ? "No data available"
                         : 'Click "List Search Terms" to fetch categories'}
+                    </p>
+                  </div>
+                )}
+              </div>
+            </TabsContent>
+
+            <TabsContent value="stock-descriptions">
+              <div className="mb-6">
+                <div className="flex gap-0 max-w-lg">
+                  <div className="relative flex-1">
+                    <Search className="absolute left-4 top-1/2 transform -translate-y-1/2 text-muted-foreground h-5 w-5" />
+                    <Input
+                      type="text"
+                      placeholder="Enter ticker symbols (e.g., aapl:us,msft:us,googl:us)"
+                      value={tickerSymbols}
+                      onChange={(e) => setTickerSymbols(e.target.value)}
+                      onKeyPress={(e) =>
+                        e.key === "Enter" && loadStockDescriptions()
+                      }
+                      className="pl-12 bg-input border-2 border-border border-r-0 focus:ring-0 focus:border-primary font-mono uppercase placeholder:text-muted-foreground/60 h-14 text-lg"
+                    />
+                  </div>
+                  <Button
+                    onClick={loadStockDescriptions}
+                    className="bg-primary hover:bg-primary/90 text-primary-foreground border-2 border-primary font-mono font-black uppercase tracking-wide h-14 px-8"
+                  >
+                    LOAD
+                  </Button>
+                </div>
+                <p className="text-sm text-muted-foreground mt-2 font-mono">
+                  Enter ticker symbols separated by commas. Use format:
+                  SYMBOL:COUNTRY (e.g., aapl:us, msft:us)
+                </p>
+              </div>
+              <div className="border-4 border-border overflow-hidden">
+                {stockDescriptionsData &&
+                Array.isArray(stockDescriptionsData) &&
+                stockDescriptionsData.length > 0 ? (
+                  <Table>
+                    <TableHeader>
+                      <TableRow
+                        style={{ backgroundColor: "#000000" }}
+                        className="hover:bg-black"
+                      >
+                        <TableHead
+                          style={headerStyle}
+                          className="font-mono font-black uppercase border-r-2 border-border"
+                        >
+                          Symbol
+                        </TableHead>
+                        <TableHead
+                          style={headerStyle}
+                          className="font-mono font-black uppercase border-r-2 border-border"
+                        >
+                          Name
+                        </TableHead>
+                        <TableHead
+                          style={headerStyle}
+                          className="font-mono font-black uppercase border-r-2 border-border"
+                        >
+                          Country
+                        </TableHead>
+                        <TableHead
+                          style={headerStyle}
+                          className="font-mono font-black uppercase border-r-2 border-border"
+                        >
+                          Sector
+                        </TableHead>
+                        <TableHead
+                          style={headerStyle}
+                          className="font-mono font-black uppercase border-r-2 border-border"
+                        >
+                          Industry
+                        </TableHead>
+                        <TableHead
+                          style={headerStyle}
+                          className="font-mono font-black uppercase"
+                        >
+                          Subindustry
+                        </TableHead>
+                      </TableRow>
+                    </TableHeader>
+                    <TableBody>
+                      {stockDescriptionsData.map((item: any, index: number) => (
+                        <TableRow
+                          key={index}
+                          className="hover:bg-muted/50 border-b-2 border-border"
+                        >
+                          <TableCell className="font-mono font-bold text-foreground border-r-2 border-border">
+                            <Badge className="bg-primary text-primary-foreground font-mono font-black">
+                              {item.Symbol || "N/A"}
+                            </Badge>
+                          </TableCell>
+                          <TableCell className="font-mono text-foreground border-r-2 border-border">
+                            {item.Name || "N/A"}
+                          </TableCell>
+                          <TableCell className="font-mono text-muted-foreground border-r-2 border-border">
+                            <Badge
+                              variant="outline"
+                              className="font-mono font-bold border-2 border-border"
+                            >
+                              {item.Country || "N/A"}
+                            </Badge>
+                          </TableCell>
+                          <TableCell className="font-mono text-muted-foreground border-r-2 border-border">
+                            {item.Sector || "N/A"}
+                          </TableCell>
+                          <TableCell className="font-mono text-muted-foreground border-r-2 border-border">
+                            {item.Industry || "N/A"}
+                          </TableCell>
+                          <TableCell className="font-mono text-muted-foreground">
+                            {item.Subindustry || "N/A"}
+                          </TableCell>
+                        </TableRow>
+                      ))}
+                    </TableBody>
+                  </Table>
+                ) : (
+                  <div className="p-8 text-center">
+                    <p className="font-mono text-muted-foreground text-lg">
+                      {stockDescriptionsData
+                        ? "No data available"
+                        : 'Click "Stock Descriptions" to fetch API data'}
                     </p>
                   </div>
                 )}
