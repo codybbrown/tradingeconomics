@@ -34,7 +34,6 @@ export default function DeveloperShowcase() {
   const [searchTerm, setSearchTerm] = useState("");
   const [persistentStockCards, setPersistentStockCards] = useState<any[]>([]);
   const [stockSnapshotData, setStockSnapshotData] = useState<any[]>([]);
-  const [isUsingMockData, setIsUsingMockData] = useState(false);
   const [selectedTickers, setSelectedTickers] = useState<string[]>([]);
   const [multiSelectedTickers, setMultiSelectedTickers] = useState<string[]>(
     []
@@ -151,17 +150,6 @@ export default function DeveloperShowcase() {
         return [...prev, ...newData];
       });
 
-      // Check if we're using mock data
-      const isMockData = filteredData.some(
-        (item: any) =>
-          item.Name &&
-          item.Name.includes("Corporation") &&
-          item.Last &&
-          item.Last > 100 &&
-          item.Last < 300
-      );
-      setIsUsingMockData(isMockData);
-
       console.log("New Stock Snapshot Data:", filteredData);
     } catch (error) {
       console.error("Failed to load stock snapshot:", error);
@@ -234,7 +222,6 @@ export default function DeveloperShowcase() {
     const loadData = async () => {
       if (selectedTickers.length === 0) {
         setStockSnapshotData([]);
-        setIsUsingMockData(false);
         return;
       }
 
@@ -250,21 +237,9 @@ export default function DeveloperShowcase() {
           : [];
 
         setStockSnapshotData(filteredData);
-
-        // Check if we're using mock data
-        const isMockData = filteredData.some(
-          (item: any) =>
-            item.Name &&
-            item.Name.includes("Corporation") &&
-            item.Last &&
-            item.Last > 100 &&
-            item.Last < 300
-        );
-        setIsUsingMockData(isMockData);
       } catch (error) {
         console.error("Failed to load all ticker data:", error);
         setStockSnapshotData([]);
-        setIsUsingMockData(false);
       }
     };
 
@@ -364,12 +339,6 @@ export default function DeveloperShowcase() {
                       </TableHead>
                       <TableHead
                         style={headerStyle}
-                        className="font-mono font-black uppercase border-r-2 border-border text-white"
-                      >
-                        Demo Data
-                      </TableHead>
-                      <TableHead
-                        style={headerStyle}
                         className="font-mono font-black uppercase text-white"
                       ></TableHead>
                     </TableRow>
@@ -408,23 +377,6 @@ export default function DeveloperShowcase() {
                               ? `$${(stock.MarketCap / 1000000000).toFixed(1)}B`
                               : "N/A"}
                           </TableCell>
-                          <TableCell className="font-mono text-muted-foreground border-r-2 border-border">
-                            {isUsingMockData ? (
-                              <Badge
-                                variant="outline"
-                                className="font-mono font-bold border-2 border-yellow-500 text-yellow-600"
-                              >
-                                DEMO
-                              </Badge>
-                            ) : (
-                              <Badge
-                                variant="outline"
-                                className="font-mono font-bold border-2 border-green-500 text-green-600"
-                              >
-                                LIVE
-                              </Badge>
-                            )}
-                          </TableCell>
                           <TableCell className="font-mono text-muted-foreground">
                             <Button
                               variant="ghost"
@@ -445,7 +397,7 @@ export default function DeveloperShowcase() {
                     ) : (
                       <TableRow className="hover:bg-muted/50 border-b-2 border-border">
                         <TableCell
-                          colSpan={6}
+                          colSpan={5}
                           className="font-mono text-muted-foreground text-center py-8"
                         >
                           Select ticker symbols to view stock comparison data
