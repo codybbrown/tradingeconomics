@@ -180,14 +180,14 @@ export default function DeveloperShowcase() {
       <header className="border-b-4 border-border bg-card">
         <div className="container mx-auto px-6 py-12">
           <h1 className="font-mono text-5xl font-black text-foreground mb-4 uppercase tracking-tight">
-            TE Search Vizualizer
+            TE Stock information
           </h1>
           <p className="text-xl text-muted-foreground font-bold uppercase tracking-wide mb-2">
             LIVE{" "}
             <span className="px-2 py-1 bg-secondary text-secondary-foreground">
               TRADING ECONOMICS
             </span>{" "}
-            SEARCH & VISUALIZATION
+            SYMBOL SEARCH & VISUALIZATION
           </p>
           <h3 className="text-sm text-muted-foreground text-stone-00 italic tracking-wide mt-4">
             Built with React, Tailwind CSS, Shadcn UI, and Trading Economics
@@ -225,7 +225,7 @@ export default function DeveloperShowcase() {
             {/* Left Side - Stock Comparison Table */}
             <div className="space-y-6">
               <h2 className="font-mono text-3xl font-black text-foreground uppercase tracking-tight">
-                STOCK DESCRIPTIONS
+                SYMBOL DATA
               </h2>
               <div className="border-4 border-border overflow-hidden">
                 <Table>
@@ -312,7 +312,7 @@ export default function DeveloperShowcase() {
             {/* Right Side - Stock Cards */}
             <div className="space-y-6">
               <h2 className="font-mono text-3xl font-black text-foreground uppercase tracking-tight">
-                STOCK CARDS
+                SYMBOL DESCRIPTION
               </h2>
               <div className="space-y-6">
                 {persistentStockCards.length > 0 ? (
