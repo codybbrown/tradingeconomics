@@ -1,16 +1,10 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { Search } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import {
   Table,
   TableBody,
@@ -27,13 +21,11 @@ import {
   getCountryData,
   listSearchTerms,
   getStockDescriptions,
-  getStockSnapshot,
 } from "@/lib/api-helpers";
 
 export default function DeveloperShowcase() {
   const [searchTerm, setSearchTerm] = useState("");
   const [persistentStockCards, setPersistentStockCards] = useState<any[]>([]);
-  const [stockSnapshotData, setStockSnapshotData] = useState<any[]>([]);
   const [selectedTickers, setSelectedTickers] = useState<string[]>([]);
   const [multiSelectedTickers, setMultiSelectedTickers] = useState<string[]>(
     []
@@ -93,7 +85,6 @@ export default function DeveloperShowcase() {
 
   const handleSearch = async (tickerSymbols: string) => {
     if (!tickerSymbols.trim()) {
-      setStockSnapshotData([]);
       return;
     }
 
@@ -119,9 +110,11 @@ export default function DeveloperShowcase() {
       // Add new stocks to persistent cards (avoid duplicates)
       if (Array.isArray(data)) {
         setPersistentStockCards((prev) => {
-          const existingSymbols = new Set(prev.map((card) => card.Symbol));
+          const existingSymbols = new Set(
+            prev.map((card) => card.Symbol?.toLowerCase())
+          );
           const newStocks = data.filter(
-            (stock) => !existingSymbols.has(stock.Symbol)
+            (stock) => !existingSymbols.has(stock.Symbol?.toLowerCase())
           );
           return [...prev, ...newStocks];
         });
@@ -130,29 +123,6 @@ export default function DeveloperShowcase() {
       console.log("Stock Data:", data);
     } catch (error) {
       console.error("Failed to load stock descriptions:", error);
-    }
-
-    // Load stock snapshot data for table
-    try {
-      const snapshotData = await getStockSnapshot(tickerSymbols.trim());
-
-      // Filter data to only include the new tickers
-      const filteredData = Array.isArray(snapshotData)
-        ? snapshotData.filter((stock: any) => newTickers.includes(stock.Symbol))
-        : [];
-
-      // Add to existing table data
-      setStockSnapshotData((prev) => {
-        const existingSymbols = new Set(prev.map((stock) => stock.Symbol));
-        const newData = filteredData.filter(
-          (stock) => !existingSymbols.has(stock.Symbol)
-        );
-        return [...prev, ...newData];
-      });
-
-      console.log("New Stock Snapshot Data:", filteredData);
-    } catch (error) {
-      console.error("Failed to load stock snapshot:", error);
     }
   };
 
@@ -164,7 +134,6 @@ export default function DeveloperShowcase() {
       handleSearch(tickerString);
     } else {
       setSearchTerm("");
-      setStockSnapshotData([]);
       setPersistentStockCards([]);
       setSelectedTickers([]);
     }
@@ -177,77 +146,29 @@ export default function DeveloperShowcase() {
   };
 
   const handleRemoveStockCard = (symbolToRemove: string) => {
-    // Remove from persistent cards
+    // Remove from persistent cards (case-insensitive)
     setPersistentStockCards((prev) =>
-      prev.filter((card) => card.Symbol !== symbolToRemove)
+      prev.filter(
+        (card) =>
+          card.Symbol &&
+          card.Symbol.toLowerCase() !== symbolToRemove.toLowerCase()
+      )
     );
 
     // Remove from selected tickers
     setSelectedTickers((prev) =>
-      prev.filter((ticker) => ticker !== symbolToRemove)
+      prev.filter(
+        (ticker) => ticker.toLowerCase() !== symbolToRemove.toLowerCase()
+      )
     );
 
     // Remove from multi-selected tickers
     setMultiSelectedTickers((prev) =>
-      prev.filter((ticker) => ticker !== symbolToRemove)
-    );
-
-    // Remove from table data
-    setStockSnapshotData((prev) =>
-      prev.filter((stock) => stock.Symbol !== symbolToRemove)
+      prev.filter(
+        (ticker) => ticker.toLowerCase() !== symbolToRemove.toLowerCase()
+      )
     );
   };
-
-  const handleRemoveFromTable = (symbolToRemove: string) => {
-    // Remove from all data sources
-    setPersistentStockCards((prev) =>
-      prev.filter((card) => card.Symbol !== symbolToRemove)
-    );
-
-    setSelectedTickers((prev) =>
-      prev.filter((ticker) => ticker !== symbolToRemove)
-    );
-
-    setMultiSelectedTickers((prev) =>
-      prev.filter((ticker) => ticker !== symbolToRemove)
-    );
-
-    setStockSnapshotData((prev) =>
-      prev.filter((stock) => stock.Symbol !== symbolToRemove)
-    );
-  };
-
-  // Load data whenever selectedTickers changes
-  useEffect(() => {
-    const loadData = async () => {
-      if (selectedTickers.length === 0) {
-        setStockSnapshotData([]);
-        return;
-      }
-
-      try {
-        const tickerString = selectedTickers.join(",");
-        const snapshotData = await getStockSnapshot(tickerString);
-
-        // Filter data to only include selected tickers
-        const filteredData = Array.isArray(snapshotData)
-          ? snapshotData.filter((stock: any) =>
-              selectedTickers.includes(stock.Symbol)
-            )
-          : [];
-
-        setStockSnapshotData(filteredData);
-      } catch (error) {
-        console.error("Failed to load all ticker data:", error);
-        setStockSnapshotData([]);
-      }
-    };
-
-    // Only load data when we have tickers
-    if (selectedTickers.length > 0) {
-      loadData();
-    }
-  }, [selectedTickers]);
 
   const headerStyle = {
     backgroundColor: "#000000 !important",
@@ -304,7 +225,7 @@ export default function DeveloperShowcase() {
             {/* Left Side - Stock Comparison Table */}
             <div className="space-y-6">
               <h2 className="font-mono text-3xl font-black text-foreground uppercase tracking-tight">
-                STOCK COMPARISON
+                STOCK DESCRIPTIONS
               </h2>
               <div className="border-4 border-border overflow-hidden">
                 <Table>
@@ -317,90 +238,69 @@ export default function DeveloperShowcase() {
                         style={headerStyle}
                         className="font-mono font-black uppercase border-r-2 border-border text-white"
                       >
-                        Ticker
+                        Name
                       </TableHead>
                       <TableHead
                         style={headerStyle}
                         className="font-mono font-black uppercase border-r-2 border-border text-white"
                       >
-                        Price
+                        Sector
                       </TableHead>
                       <TableHead
                         style={headerStyle}
                         className="font-mono font-black uppercase border-r-2 border-border text-white"
                       >
-                        Daily Change
-                      </TableHead>
-                      <TableHead
-                        style={headerStyle}
-                        className="font-mono font-black uppercase border-r-2 border-border text-white"
-                      >
-                        Market Cap
+                        Industry
                       </TableHead>
                       <TableHead
                         style={headerStyle}
                         className="font-mono font-black uppercase text-white"
-                      ></TableHead>
+                      >
+                        Sub-industry
+                      </TableHead>
                     </TableRow>
                   </TableHeader>
                   <TableBody>
-                    {stockSnapshotData.length > 0 ? (
-                      stockSnapshotData.map((stock: any, index: number) => (
+                    {persistentStockCards.length > 0 ? (
+                      persistentStockCards.map((stock: any, index: number) => (
                         <TableRow
                           key={index}
                           className="hover:bg-muted/50 border-b-2 border-border"
                         >
                           <TableCell className="font-mono font-bold text-foreground border-r-2 border-border">
-                            <Badge className="bg-primary text-primary-foreground font-mono font-black">
-                              {stock.Symbol || "N/A"}
-                            </Badge>
-                          </TableCell>
-                          <TableCell className="font-mono text-foreground border-r-2 border-border">
-                            ${stock.Last ? stock.Last.toFixed(2) : "N/A"}
-                          </TableCell>
-                          <TableCell className="border-r-2 border-border">
-                            <Badge
-                              className={`font-mono font-black ${
-                                stock.DailyChange >= 0
-                                  ? "bg-green-500 text-white"
-                                  : "bg-red-500 text-white"
-                              }`}
-                            >
-                              {stock.DailyChange >= 0 ? "+" : ""}
-                              {stock.DailyChange
-                                ? stock.DailyChange.toFixed(2)
-                                : "N/A"}
-                            </Badge>
+                            {stock.Name || "N/A"}
                           </TableCell>
                           <TableCell className="font-mono text-muted-foreground border-r-2 border-border">
-                            {stock.MarketCap
-                              ? `$${(stock.MarketCap / 1000000000).toFixed(1)}B`
-                              : "N/A"}
+                            {stock.Sector || "N/A"}
+                          </TableCell>
+                          <TableCell className="font-mono text-muted-foreground border-r-2 border-border">
+                            {stock.Industry || "N/A"}
                           </TableCell>
                           <TableCell className="font-mono text-muted-foreground">
-                            <Button
-                              variant="ghost"
-                              size="sm"
-                              onClick={() =>
-                                handleRemoveFromTable(stock.Symbol)
-                              }
-                              className="h-8 w-8 p-0 text-red-500 hover:bg-red-100 hover:text-red-700 text-xl font-bold"
-                            >
-                              <span className="sr-only">
-                                Remove {stock.Symbol}
-                              </span>
-                              ×
-                            </Button>
+                            {stock.Subindustry || "N/A"}
                           </TableCell>
                         </TableRow>
                       ))
                     ) : (
                       <TableRow className="hover:bg-muted/50 border-b-2 border-border">
                         <TableCell
-                          colSpan={5}
+                          colSpan={4}
                           className="font-mono text-muted-foreground text-center py-8"
                         >
-                          Select ticker symbols to view stock comparison data
+                          {selectedTickers.length > 0 ? (
+                            <div className="space-y-2">
+                              <div className="text-lg font-bold">
+                                No stock descriptions available for selected
+                                tickers
+                              </div>
+                              <div className="text-sm">
+                                The selected tickers may not have description
+                                data available
+                              </div>
+                            </div>
+                          ) : (
+                            "Select ticker symbols to view stock descriptions"
+                          )}
                         </TableCell>
                       </TableRow>
                     )}
@@ -409,10 +309,10 @@ export default function DeveloperShowcase() {
               </div>
             </div>
 
-            {/* Right Side - Stock Descriptions */}
+            {/* Right Side - Stock Cards */}
             <div className="space-y-6">
               <h2 className="font-mono text-3xl font-black text-foreground uppercase tracking-tight">
-                STOCK DESCRIPTIONS
+                STOCK CARDS
               </h2>
               <div className="space-y-6">
                 {persistentStockCards.length > 0 ? (
@@ -445,48 +345,39 @@ export default function DeveloperShowcase() {
                             </Button>
                           </div>
                         </div>
-                        <CardDescription className="text-muted-foreground font-bold leading-relaxed">
+                        <div className="text-muted-foreground font-bold leading-relaxed mt-2">
                           {stock.Description || "No description available"}
-                        </CardDescription>
+                        </div>
                       </CardHeader>
                       <CardContent className="pt-0">
-                        <div className="flex flex-wrap gap-2 mb-4">
+                        <div className="flex flex-wrap gap-2">
                           <Badge
                             variant="outline"
                             className="font-mono font-bold border-2 border-border"
                           >
                             {stock.Country || "N/A"}
                           </Badge>
-                          <Badge
-                            variant="outline"
-                            className="font-mono font-bold border-2 border-border"
-                          >
-                            {stock.Sector || "N/A"}
-                          </Badge>
-                          <Badge
-                            variant="outline"
-                            className="font-mono font-bold border-2 border-border"
-                          >
-                            {stock.Industry || "N/A"}
-                          </Badge>
-                          <Badge
-                            variant="outline"
-                            className="font-mono font-bold border-2 border-border"
-                          >
-                            {stock.Subindustry || "N/A"}
-                          </Badge>
-                        </div>
-                        <div className="font-mono font-black text-primary text-lg uppercase tracking-wide">
-                          {stock.Sector} • {stock.Industry}
                         </div>
                       </CardContent>
                     </Card>
                   ))
                 ) : (
                   <div className="p-8 text-center">
-                    <p className="font-mono text-muted-foreground text-lg">
-                      Enter ticker symbols above to load stock descriptions
-                    </p>
+                    {selectedTickers.length > 0 ? (
+                      <div className="space-y-2">
+                        <p className="font-mono text-muted-foreground text-lg font-bold">
+                          No stock cards available
+                        </p>
+                        <p className="font-mono text-muted-foreground text-sm">
+                          The selected tickers may not have description data
+                          available
+                        </p>
+                      </div>
+                    ) : (
+                      <p className="font-mono text-muted-foreground text-lg">
+                        Enter ticker symbols above to load stock cards
+                      </p>
+                    )}
                   </div>
                 )}
               </div>

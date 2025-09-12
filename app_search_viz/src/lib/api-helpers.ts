@@ -51,31 +51,3 @@ export const getStockDescriptions = async (symbols: string) => {
     throw error;
   }
 };
-
-export const getStockSnapshot = async (symbols: string) => {
-  try {
-    const response = await axios.get(
-      `https://api.tradingeconomics.com/markets/symbol/${symbols}?c=guest:guest&f=json`
-    );
-    console.log("API Stock Snapshot:", response.data);
-
-    // Check if response contains the free account limitation message
-    if (Array.isArray(response.data) && response.data.length > 0) {
-      const firstItem = response.data[0];
-      if (
-        firstItem.Country &&
-        firstItem.Country.includes("Free accounts have access")
-      ) {
-        console.warn(
-          "Free account limitation detected. Returning empty array."
-        );
-        return [];
-      }
-    }
-
-    return response.data;
-  } catch (error) {
-    console.error("Error fetching stock snapshot:", error);
-    throw error;
-  }
-};
