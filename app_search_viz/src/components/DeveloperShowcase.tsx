@@ -22,11 +22,7 @@ import {
 import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 
-import {
-  getCountryData,
-  getSearchTermData,
-  listSearchTerms,
-} from "@/lib/api-helpers";
+import { getCountryData, listSearchTerms } from "@/lib/api-helpers";
 
 const mockTableData = [
   {
@@ -116,7 +112,6 @@ export default function DeveloperShowcase() {
   const [filteredCardData, setFilteredCardData] = useState(mockCardData);
   const [countryData, setCountryData] = useState<any>(null);
   const [searchCategoriesData, setSearchCategoriesData] = useState<any>(null);
-  const [searchTermData, setSearchTermData] = useState<any>(null);
 
   const loadCountryData = async () => {
     try {
@@ -135,18 +130,6 @@ export default function DeveloperShowcase() {
       console.log("Search Categories Data:", data);
     } catch (error) {
       console.error("Failed to load search categories:", error);
-    }
-  };
-
-  const loadSearchTermData = async () => {
-    const term = "japan"; // Hard-coded search term for testing
-    console.log("Loading search term data for:", term);
-    try {
-      const data = await getSearchTermData(term);
-      console.log("Search Term Data received:", data);
-      setSearchTermData(data);
-    } catch (error) {
-      console.error("Failed to load search term data:", error);
     }
   };
 
@@ -382,7 +365,7 @@ export default function DeveloperShowcase() {
             </h2>
           </div>
           <Tabs defaultValue="country-data" className="w-full">
-            <TabsList className="grid w-full grid-cols-3 bg-muted">
+            <TabsList className="grid w-full grid-cols-2 bg-muted">
               <TabsTrigger
                 value="country-data"
                 className="font-mono font-black uppercase tracking-wide data-[state=active]:px-2 data-[state=active]:py-1 data-[state=active]:bg-secondary data-[state=active]:text-secondary-foreground"
@@ -396,13 +379,6 @@ export default function DeveloperShowcase() {
                 onClick={loadSearchTermCategories}
               >
                 List Available Search Terms
-              </TabsTrigger>
-              <TabsTrigger
-                value="terms-data"
-                className="font-mono font-black uppercase tracking-wide data-[state=active]:px-2 data-[state=active]:py-1 data-[state=active]:bg-secondary data-[state=active]:text-secondary-foreground"
-                onClick={loadSearchTermData}
-              >
-                Load Search Term Data
               </TabsTrigger>
             </TabsList>
 
@@ -565,27 +541,6 @@ export default function DeveloperShowcase() {
                       {searchCategoriesData
                         ? "No data available"
                         : 'Click "List Search Terms" to fetch categories'}
-                    </p>
-                  </div>
-                )}
-              </div>
-            </TabsContent>
-
-            <TabsContent value="terms-data">
-              <div className="border-4 border-border overflow-hidden">
-                {searchTermData ? (
-                  <div className="p-4">
-                    <h3 className="font-mono font-black uppercase text-lg mb-4">
-                      Raw JSON Data:
-                    </h3>
-                    <pre className="bg-muted p-4 rounded-lg overflow-auto text-sm font-mono">
-                      {JSON.stringify(searchTermData, null, 2)}
-                    </pre>
-                  </div>
-                ) : (
-                  <div className="p-8 text-center">
-                    <p className="font-mono text-muted-foreground text-lg">
-                      Click "Load Search Term Data" to fetch data
                     </p>
                   </div>
                 )}
