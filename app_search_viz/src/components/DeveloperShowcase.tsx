@@ -27,55 +27,14 @@ import {
   getCountryData,
   listSearchTerms,
   getStockDescriptions,
+  getStockSnapshot,
 } from "@/lib/api-helpers";
-
-const mockTableData = [
-  {
-    id: 1,
-    endpoint: "/api/users",
-    method: "GET",
-    status: 200,
-    responseTime: "45ms",
-    records: 1247,
-  },
-  {
-    id: 2,
-    endpoint: "/api/products",
-    method: "POST",
-    status: 201,
-    responseTime: "89ms",
-    records: 892,
-  },
-  {
-    id: 3,
-    endpoint: "/api/orders",
-    method: "GET",
-    status: 200,
-    responseTime: "32ms",
-    records: 2156,
-  },
-  {
-    id: 4,
-    endpoint: "/api/analytics",
-    method: "GET",
-    status: 200,
-    responseTime: "156ms",
-    records: 445,
-  },
-  {
-    id: 5,
-    endpoint: "/api/auth/login",
-    method: "POST",
-    status: 200,
-    responseTime: "78ms",
-    records: 3421,
-  },
-];
 
 export default function DeveloperShowcase() {
   const [searchTerm, setSearchTerm] = useState("");
-  const [filteredTableData, setFilteredTableData] = useState(mockTableData);
   const [persistentStockCards, setPersistentStockCards] = useState<any[]>([]);
+  const [stockSnapshotData, setStockSnapshotData] = useState<any[]>([]);
+  const [isUsingMockData, setIsUsingMockData] = useState(false);
   const [tickerOptions, setTickerOptions] = useState<string[]>([
     "aapl:us",
     "msft:us",
@@ -131,7 +90,7 @@ export default function DeveloperShowcase() {
 
   const handleSearch = async (tickerSymbols: string) => {
     if (!tickerSymbols.trim()) {
-      setFilteredTableData(mockTableData);
+      setStockSnapshotData([]);
       return;
     }
 
@@ -155,14 +114,28 @@ export default function DeveloperShowcase() {
       console.error("Failed to load stock descriptions:", error);
     }
 
-    // Keep table filtering for API endpoints
-    const tableFiltered = mockTableData.filter(
-      (item) =>
-        item.endpoint.toLowerCase().includes(tickerSymbols.toLowerCase()) ||
-        item.method.toLowerCase().includes(tickerSymbols.toLowerCase())
-    );
+    // Load stock snapshot data for table
+    try {
+      const snapshotData = await getStockSnapshot(tickerSymbols.trim());
+      setStockSnapshotData(Array.isArray(snapshotData) ? snapshotData : []);
 
-    setFilteredTableData(tableFiltered);
+      // Check if we're using mock data
+      const isMockData = snapshotData.some(
+        (item: any) =>
+          item.Name &&
+          item.Name.includes("Corporation") &&
+          item.Last &&
+          item.Last > 100 &&
+          item.Last < 300
+      );
+      setIsUsingMockData(isMockData);
+
+      console.log("Stock Snapshot Data:", snapshotData);
+    } catch (error) {
+      console.error("Failed to load stock snapshot:", error);
+      setStockSnapshotData([]);
+      setIsUsingMockData(false);
+    }
   };
 
   const handleTickerSelect = (value: string) => {
@@ -180,30 +153,9 @@ export default function DeveloperShowcase() {
     setPersistentStockCards((prev) =>
       prev.filter((card) => card.Symbol !== symbolToRemove)
     );
-  };
-
-  const getStatusColor = (status: number) => {
-    if (status >= 200 && status < 300) {
-      return "bg-primary text-primary-foreground";
-    } else if (status >= 400) {
-      return "bg-destructive text-destructive-foreground";
-    }
-    return "bg-secondary text-secondary-foreground";
-  };
-
-  const getMethodColor = (method: string) => {
-    switch (method) {
-      case "GET":
-        return "bg-primary text-primary-foreground";
-      case "POST":
-        return "bg-secondary text-secondary-foreground";
-      case "PUT":
-        return "bg-accent text-accent-foreground";
-      case "DELETE":
-        return "bg-destructive text-destructive-foreground";
-      default:
-        return "bg-muted text-muted-foreground";
-    }
+    setStockSnapshotData((prev) =>
+      prev.filter((stock) => stock.Symbol !== symbolToRemove)
+    );
   };
 
   const headerStyle = {
@@ -258,11 +210,21 @@ export default function DeveloperShowcase() {
 
           {/* Content Grid */}
           <div className="grid lg:grid-cols-2 gap-12">
-            {/* Left Side - Data Table */}
+            {/* Left Side - Stock Comparison Table */}
             <div className="space-y-6">
-              <h2 className="font-mono text-3xl font-black text-foreground uppercase tracking-tight">
-                API ENDPOINTS
-              </h2>
+              <div className="flex items-center justify-between">
+                <h2 className="font-mono text-3xl font-black text-foreground uppercase tracking-tight">
+                  STOCK COMPARISON
+                </h2>
+                {isUsingMockData && (
+                  <Badge
+                    variant="outline"
+                    className="font-mono font-bold border-2 border-yellow-500 text-yellow-600"
+                  >
+                    DEMO DATA
+                  </Badge>
+                )}
+              </div>
               <div className="border-4 border-border overflow-hidden">
                 <Table>
                   <TableHeader>
@@ -274,60 +236,88 @@ export default function DeveloperShowcase() {
                         style={headerStyle}
                         className="font-mono font-black uppercase border-r-2 border-border"
                       >
-                        Endpoint
+                        Ticker
                       </TableHead>
                       <TableHead
                         style={headerStyle}
                         className="font-mono font-black uppercase border-r-2 border-border"
                       >
-                        Method
+                        Price
                       </TableHead>
                       <TableHead
                         style={headerStyle}
                         className="font-mono font-black uppercase border-r-2 border-border"
                       >
-                        Status
+                        Daily Change
+                      </TableHead>
+                      <TableHead
+                        style={headerStyle}
+                        className="font-mono font-black uppercase border-r-2 border-border"
+                      >
+                        Market Cap
                       </TableHead>
                       <TableHead
                         style={headerStyle}
                         className="font-mono font-black uppercase"
                       >
-                        Response
+                        State
                       </TableHead>
                     </TableRow>
                   </TableHeader>
                   <TableBody>
-                    {filteredTableData.map((item) => (
-                      <TableRow
-                        key={item.id}
-                        className="hover:bg-muted/50 border-b-2 border-border"
-                      >
-                        <TableCell className="font-mono font-bold text-foreground border-r-2 border-border">
-                          {item.endpoint}
-                        </TableCell>
-                        <TableCell className="border-r-2 border-border">
-                          <Badge
-                            className={`${getMethodColor(
-                              item.method
-                            )} font-mono font-black`}
-                          >
-                            {item.method}
-                          </Badge>
-                        </TableCell>
-                        <TableCell className="border-r-2 border-border">
-                          <Badge
-                            className={`${getStatusColor(
-                              item.status
-                            )} font-mono font-black`}
-                          >
-                            {item.status}
-                          </Badge>
-                        </TableCell>
-                        <TableCell className="font-mono text-muted-foreground font-bold">
-                          {item.responseTime}
+                    {stockSnapshotData.length > 0 ? (
+                      stockSnapshotData.map((stock: any, index: number) => (
+                        <TableRow
+                          key={index}
+                          className="hover:bg-muted/50 border-b-2 border-border"
+                        >
+                          <TableCell className="font-mono font-bold text-foreground border-r-2 border-border">
+                            <Badge className="bg-primary text-primary-foreground font-mono font-black">
+                              {stock.Symbol || "N/A"}
+                            </Badge>
+                          </TableCell>
+                          <TableCell className="font-mono text-foreground border-r-2 border-border">
+                            ${stock.Last ? stock.Last.toFixed(2) : "N/A"}
+                          </TableCell>
+                          <TableCell className="border-r-2 border-border">
+                            <Badge
+                              className={`font-mono font-black ${
+                                stock.DailyChange >= 0
+                                  ? "bg-green-500 text-white"
+                                  : "bg-red-500 text-white"
+                              }`}
+                            >
+                              {stock.DailyChange >= 0 ? "+" : ""}
+                              {stock.DailyChange
+                                ? stock.DailyChange.toFixed(2)
+                                : "N/A"}
+                            </Badge>
+                          </TableCell>
+                          <TableCell className="font-mono text-muted-foreground border-r-2 border-border">
+                            {stock.MarketCap
+                              ? `$${(stock.MarketCap / 1000000000).toFixed(1)}B`
+                              : "N/A"}
+                          </TableCell>
+                          <TableCell className="font-mono text-muted-foreground">
+                            <Badge
+                              variant="outline"
+                              className="font-mono font-bold border-2 border-border"
+                            >
+                              {stock.State || "N/A"}
+                            </Badge>
+                          </TableCell>
+                        </TableRow>
+                      ))
+                    ) : (
+                      <TableRow className="hover:bg-muted/50 border-b-2 border-border">
+                        <TableCell
+                          colSpan={5}
+                          className="font-mono text-muted-foreground text-center py-8"
+                        >
+                          Select ticker symbols to view stock comparison data
                         </TableCell>
                       </TableRow>
-                    ))}
+                    )}
                   </TableBody>
                 </Table>
               </div>
