@@ -71,49 +71,10 @@ const mockTableData = [
   },
 ];
 
-const mockCardData = [
-  {
-    id: 1,
-    title: "Database Performance",
-    metric: "99.9% Uptime",
-    description:
-      "Optimized queries with proper indexing and connection pooling for maximum efficiency.",
-    tech: ["PostgreSQL", "Redis", "Prisma"],
-    value: "2.3s avg response",
-  },
-  {
-    id: 2,
-    title: "API Security",
-    metric: "Zero Breaches",
-    description:
-      "JWT authentication, rate limiting, and input validation across all endpoints.",
-    tech: ["JWT", "bcrypt", "Helmet.js"],
-    value: "100% secure",
-  },
-  {
-    id: 3,
-    title: "Code Quality",
-    metric: "95% Coverage",
-    description:
-      "Comprehensive testing suite with unit, integration, and end-to-end tests.",
-    tech: ["Jest", "Cypress", "ESLint"],
-    value: "A+ Grade",
-  },
-  {
-    id: 4,
-    title: "Deployment Pipeline",
-    metric: "5min Deploy",
-    description:
-      "Automated CI/CD with Docker containers and zero-downtime deployments.",
-    tech: ["Docker", "GitHub Actions", "Vercel"],
-    value: "Fully Automated",
-  },
-];
-
 export default function DeveloperShowcase() {
   const [searchTerm, setSearchTerm] = useState("");
   const [filteredTableData, setFilteredTableData] = useState(mockTableData);
-  const [filteredCardData, setFilteredCardData] = useState(mockCardData);
+  const [mainStockData, setMainStockData] = useState<any>(null);
   const [countryData, setCountryData] = useState<any>(null);
   const [searchCategoriesData, setSearchCategoriesData] = useState<any>(null);
   const [stockDescriptionsData, setStockDescriptionsData] = useState<any>(null);
@@ -155,29 +116,31 @@ export default function DeveloperShowcase() {
     }
   };
 
-  const handleSearch = () => {
+  const handleSearch = async () => {
     if (!searchTerm.trim()) {
       setFilteredTableData(mockTableData);
-      setFilteredCardData(mockCardData);
+      setMainStockData(null);
       return;
     }
 
+    // Load stock descriptions for main section
+    try {
+      const data = await getStockDescriptions(searchTerm.trim());
+      setMainStockData(data);
+      console.log("Main Stock Data:", data);
+    } catch (error) {
+      console.error("Failed to load stock descriptions:", error);
+      setMainStockData(null);
+    }
+
+    // Keep table filtering for API endpoints
     const tableFiltered = mockTableData.filter(
       (item) =>
         item.endpoint.toLowerCase().includes(searchTerm.toLowerCase()) ||
         item.method.toLowerCase().includes(searchTerm.toLowerCase())
     );
 
-    const cardFiltered = mockCardData.filter(
-      (item) =>
-        item.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        item.tech.some((tech) =>
-          tech.toLowerCase().includes(searchTerm.toLowerCase())
-        )
-    );
-
     setFilteredTableData(tableFiltered);
-    setFilteredCardData(cardFiltered);
   };
 
   const getStatusColor = (status: number) => {
@@ -239,7 +202,7 @@ export default function DeveloperShowcase() {
                 <Search className="absolute left-4 top-1/2 transform -translate-y-1/2 text-muted-foreground h-5 w-5" />
                 <Input
                   type="text"
-                  placeholder="SEARCH ENDPOINTS OR METHODS..."
+                  placeholder="ENTER TICKER SYMBOLS (e.g., aapl:us,msft:us,googl:us)..."
                   value={searchTerm}
                   onChange={(e) => setSearchTerm(e.target.value)}
                   onKeyPress={(e) => e.key === "Enter" && handleSearch()}
@@ -332,48 +295,75 @@ export default function DeveloperShowcase() {
               </div>
             </div>
 
-            {/* Right Side - Performance Metrics */}
+            {/* Right Side - Stock Descriptions */}
             <div className="space-y-6">
               <h2 className="font-mono text-3xl font-black text-foreground uppercase tracking-tight">
-                PERFORMANCE METRICS
+                STOCK DESCRIPTIONS
               </h2>
               <div className="space-y-6">
-                {filteredCardData.map((metric) => (
-                  <Card
-                    key={metric.id}
-                    className="border-4 border-border shadow-none hover:shadow-none bg-card"
-                  >
-                    <CardHeader className="pb-4">
-                      <div className="flex items-start justify-between">
-                        <CardTitle className="font-mono text-xl font-black text-card-foreground uppercase tracking-tight">
-                          {metric.title}
-                        </CardTitle>
-                        <Badge className="bg-primary text-primary-foreground font-mono font-black text-sm">
-                          {metric.metric}
-                        </Badge>
-                      </div>
-                      <CardDescription className="text-muted-foreground font-bold leading-relaxed">
-                        {metric.description}
-                      </CardDescription>
-                    </CardHeader>
-                    <CardContent className="pt-0">
-                      <div className="flex flex-wrap gap-2 mb-4">
-                        {metric.tech.map((tech, index) => (
+                {mainStockData &&
+                Array.isArray(mainStockData) &&
+                mainStockData.length > 0 ? (
+                  mainStockData.map((stock: any, index: number) => (
+                    <Card
+                      key={index}
+                      className="border-4 border-border shadow-none hover:shadow-none bg-card"
+                    >
+                      <CardHeader className="pb-4">
+                        <div className="flex items-start justify-between">
+                          <CardTitle className="font-mono text-xl font-black text-card-foreground uppercase tracking-tight">
+                            {stock.Name || "N/A"}
+                          </CardTitle>
+                          <Badge className="bg-primary text-primary-foreground font-mono font-black text-sm">
+                            {stock.Symbol || "N/A"}
+                          </Badge>
+                        </div>
+                        <CardDescription className="text-muted-foreground font-bold leading-relaxed">
+                          {stock.Description || "No description available"}
+                        </CardDescription>
+                      </CardHeader>
+                      <CardContent className="pt-0">
+                        <div className="flex flex-wrap gap-2 mb-4">
                           <Badge
-                            key={index}
                             variant="outline"
                             className="font-mono font-bold border-2 border-border"
                           >
-                            {tech}
+                            {stock.Country || "N/A"}
                           </Badge>
-                        ))}
-                      </div>
-                      <div className="font-mono font-black text-primary text-lg uppercase tracking-wide">
-                        {metric.value}
-                      </div>
-                    </CardContent>
-                  </Card>
-                ))}
+                          <Badge
+                            variant="outline"
+                            className="font-mono font-bold border-2 border-border"
+                          >
+                            {stock.Sector || "N/A"}
+                          </Badge>
+                          <Badge
+                            variant="outline"
+                            className="font-mono font-bold border-2 border-border"
+                          >
+                            {stock.Industry || "N/A"}
+                          </Badge>
+                          <Badge
+                            variant="outline"
+                            className="font-mono font-bold border-2 border-border"
+                          >
+                            {stock.Subindustry || "N/A"}
+                          </Badge>
+                        </div>
+                        <div className="font-mono font-black text-primary text-lg uppercase tracking-wide">
+                          {stock.Sector} • {stock.Industry}
+                        </div>
+                      </CardContent>
+                    </Card>
+                  ))
+                ) : (
+                  <div className="p-8 text-center">
+                    <p className="font-mono text-muted-foreground text-lg">
+                      {mainStockData
+                        ? "No stock data available"
+                        : "Enter ticker symbols above to load stock descriptions"}
+                    </p>
+                  </div>
+                )}
               </div>
             </div>
           </div>
