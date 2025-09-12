@@ -21,7 +21,11 @@ import {
 } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
 
-import { getCountryData, getSearchTermData } from "@/lib/api-helpers";
+import {
+  getCountryData,
+  getSearchTermData,
+  listSearchTerms,
+} from "@/lib/api-helpers";
 
 const mockTableData = [
   {
@@ -111,9 +115,19 @@ export default function DeveloperShowcase() {
   const [filteredCardData, setFilteredCardData] = useState(mockCardData);
   const [apiData, setApiData] = useState<any>(null);
 
-  const loadData = async () => {
+  const loadCountryData = async () => {
     try {
       const data = await getCountryData("mexico");
+      setApiData(data);
+      console.log("API Data:", data);
+    } catch (error) {
+      console.error("Failed to load data:", error);
+    }
+  };
+
+  const loadSearchTermCategories = async () => {
+    try {
+      const data = await listSearchTerms();
       setApiData(data);
       console.log("API Data:", data);
     } catch (error) {
@@ -362,7 +376,10 @@ export default function DeveloperShowcase() {
               API DATA
             </h2>
             <div className="flex gap-2">
-              <Button onClick={loadData}>Load Mexico Data</Button>
+              <Button onClick={loadCountryData}>Load Mexico Data</Button>
+              <Button onClick={loadSearchTermCategories}>
+                List Search Terms
+              </Button>
               <Button onClick={loadSearchTermData}>
                 Load Search Term Data
               </Button>

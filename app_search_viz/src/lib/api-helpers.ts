@@ -1,6 +1,24 @@
 import axios from "axios";
 const API_KEY = import.meta.env.VITE_TRADING_ECONOMICS_API_KEY;
 
+export const listSearchTerms = async () => {
+  try {
+    const response = await axios.get(
+      `https://api.tradingeconomics.com/search/categories?c=${API_KEY}`,
+      {
+        headers: {
+          Authorization: API_KEY,
+        },
+      }
+    );
+    console.log("API Search Categories:", response.data);
+    return response.data;
+  } catch (error) {
+    console.error("Error fetching search categories:", error);
+    throw error;
+  }
+};
+
 export const getSearchTermData = async () => {
   try {
     const response = await axios.get(
