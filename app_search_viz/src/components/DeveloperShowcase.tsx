@@ -347,6 +347,14 @@ export default function DeveloperShowcase() {
             </div>
           </div>
         </div>
+        <div className="border-4 border-border overflow-hidden">
+          <h2 className="font-mono text-3xl font-black text-foreground uppercase tracking-tight">
+            API DATA
+          </h2>
+          <div className="border-4 border-border overflow-hidden">
+            <pre>{JSON.stringify(apiData, null, 2)}</pre>
+          </div>
+        </div>
       </main>
     </div>
   );
