@@ -21,7 +21,7 @@ import {
 } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
 
-import { getCountryData } from "@/lib/api-helpers";
+import { getCountryData, getSearchTermData } from "@/lib/api-helpers";
 
 const mockTableData = [
   {
@@ -121,6 +121,16 @@ export default function DeveloperShowcase() {
     }
   };
 
+  const loadSearchTermData = async () => {
+    try {
+      const data = await getSearchTermData();
+      setApiData(data);
+      console.log("API Data:", data);
+    } catch (error) {
+      console.error("Failed to load data:", error);
+    }
+  };
+
   const handleSearch = () => {
     if (!searchTerm.trim()) {
       setFilteredTableData(mockTableData);
@@ -194,9 +204,6 @@ export default function DeveloperShowcase() {
             API.
           </h3>
         </div>
-        <Button onClick={loadData} className="mb-4">
-          Load Mexico Data
-        </Button>
       </header>
 
       {/* Main Content Container */}
@@ -347,12 +354,122 @@ export default function DeveloperShowcase() {
             </div>
           </div>
         </div>
-        <div className="border-4 border-border overflow-hidden">
-          <h2 className="font-mono text-3xl font-black text-foreground uppercase tracking-tight">
-            API DATA
-          </h2>
+
+        {/* API Data Table */}
+        <div className="mt-12">
+          <div className="flex justify-between items-center mb-6">
+            <h2 className="font-mono text-3xl font-black text-foreground uppercase tracking-tight">
+              API DATA
+            </h2>
+            <div className="flex gap-2">
+              <Button onClick={loadData}>Load Mexico Data</Button>
+              <Button onClick={loadSearchTermData}>
+                Load Search Term Data
+              </Button>
+            </div>
+          </div>
           <div className="border-4 border-border overflow-hidden">
-            <pre>{JSON.stringify(apiData, null, 2)}</pre>
+            {apiData && Array.isArray(apiData) && apiData.length > 0 ? (
+              <Table>
+                <TableHeader>
+                  <TableRow
+                    style={{ backgroundColor: "#000000" }}
+                    className="hover:bg-black"
+                  >
+                    <TableHead
+                      style={headerStyle}
+                      className="font-mono font-black uppercase border-r-2 border-border"
+                    >
+                      Category
+                    </TableHead>
+                    <TableHead
+                      style={headerStyle}
+                      className="font-mono font-black uppercase border-r-2 border-border"
+                    >
+                      Latest Value
+                    </TableHead>
+                    <TableHead
+                      style={headerStyle}
+                      className="font-mono font-black uppercase border-r-2 border-border"
+                    >
+                      Previous Value
+                    </TableHead>
+                    <TableHead
+                      style={headerStyle}
+                      className="font-mono font-black uppercase border-r-2 border-border"
+                    >
+                      Unit
+                    </TableHead>
+                    <TableHead
+                      style={headerStyle}
+                      className="font-mono font-black uppercase border-r-2 border-border"
+                    >
+                      Group
+                    </TableHead>
+                    <TableHead
+                      style={headerStyle}
+                      className="font-mono font-black uppercase"
+                    >
+                      Date
+                    </TableHead>
+                  </TableRow>
+                </TableHeader>
+                <TableBody>
+                  {apiData.map((item: any, index: number) => (
+                    <TableRow
+                      key={index}
+                      className="hover:bg-muted/50 border-b-2 border-border"
+                    >
+                      <TableCell className="font-mono font-bold text-foreground border-r-2 border-border">
+                        {item.Category || "N/A"}
+                      </TableCell>
+                      <TableCell className="font-mono text-foreground border-r-2 border-border">
+                        <Badge className="bg-primary text-primary-foreground font-mono font-black">
+                          {item.LatestValue !== null &&
+                          item.LatestValue !== undefined
+                            ? typeof item.LatestValue === "number"
+                              ? item.LatestValue.toLocaleString()
+                              : item.LatestValue
+                            : "N/A"}
+                        </Badge>
+                      </TableCell>
+                      <TableCell className="font-mono text-muted-foreground border-r-2 border-border">
+                        {item.PreviousValue !== null &&
+                        item.PreviousValue !== undefined
+                          ? typeof item.PreviousValue === "number"
+                            ? item.PreviousValue.toLocaleString()
+                            : item.PreviousValue
+                          : "N/A"}
+                      </TableCell>
+                      <TableCell className="font-mono text-muted-foreground border-r-2 border-border">
+                        {item.Unit || "N/A"}
+                      </TableCell>
+                      <TableCell className="font-mono text-muted-foreground border-r-2 border-border">
+                        <Badge
+                          variant="outline"
+                          className="font-mono font-bold border-2 border-border"
+                        >
+                          {item.CategoryGroup || "N/A"}
+                        </Badge>
+                      </TableCell>
+                      <TableCell className="font-mono text-muted-foreground">
+                        {item.LatestValueDate
+                          ? new Date(item.LatestValueDate).toLocaleDateString()
+                          : "N/A"}
+                      </TableCell>
+                    </TableRow>
+                  ))}
+                </TableBody>
+              </Table>
+            ) : (
+              <div className="p-8 text-center">
+                <p className="font-mono text-muted-foreground text-lg">
+                  {apiData
+                    ? "No data available"
+                    : 'Click "Load Mexico Data" to fetch API data'}
+                </p>
+              </div>
+            )}
           </div>
         </div>
       </main>
