@@ -21,7 +21,7 @@ import {
 } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Combobox } from "@/components/ui/combobox";
+import { MultiCombobox } from "@/components/ui/multi-combobox";
 
 import {
   getCountryData,
@@ -36,6 +36,9 @@ export default function DeveloperShowcase() {
   const [stockSnapshotData, setStockSnapshotData] = useState<any[]>([]);
   const [isUsingMockData, setIsUsingMockData] = useState(false);
   const [selectedTickers, setSelectedTickers] = useState<string[]>([]);
+  const [multiSelectedTickers, setMultiSelectedTickers] = useState<string[]>(
+    []
+  );
   const [tickerOptions, setTickerOptions] = useState<string[]>([
     "aapl:us",
     "msft:us",
@@ -165,9 +168,18 @@ export default function DeveloperShowcase() {
     }
   };
 
-  const handleTickerSelect = (value: string) => {
-    setSearchTerm(value);
-    handleSearch(value);
+  const handleTickerSelect = (values: string[]) => {
+    setMultiSelectedTickers(values);
+    if (values.length > 0) {
+      const tickerString = values.join(",");
+      setSearchTerm(tickerString);
+      handleSearch(tickerString);
+    } else {
+      setSearchTerm("");
+      setStockSnapshotData([]);
+      setPersistentStockCards([]);
+      setSelectedTickers([]);
+    }
   };
 
   const handleAddNewTicker = (newTicker: string) => {
@@ -187,6 +199,11 @@ export default function DeveloperShowcase() {
       prev.filter((ticker) => ticker !== symbolToRemove)
     );
 
+    // Remove from multi-selected tickers
+    setMultiSelectedTickers((prev) =>
+      prev.filter((ticker) => ticker !== symbolToRemove)
+    );
+
     // Remove from table data
     setStockSnapshotData((prev) =>
       prev.filter((stock) => stock.Symbol !== symbolToRemove)
@@ -200,6 +217,10 @@ export default function DeveloperShowcase() {
     );
 
     setSelectedTickers((prev) =>
+      prev.filter((ticker) => ticker !== symbolToRemove)
+    );
+
+    setMultiSelectedTickers((prev) =>
       prev.filter((ticker) => ticker !== symbolToRemove)
     );
 
@@ -285,10 +306,10 @@ export default function DeveloperShowcase() {
           <div className="mb-12">
             <div className="flex gap-0 max-w-lg">
               <div className="relative flex-1">
-                <Combobox
+                <MultiCombobox
                   options={tickerOptions}
-                  value={searchTerm}
-                  onValueChange={handleTickerSelect}
+                  values={multiSelectedTickers}
+                  onValuesChange={handleTickerSelect}
                   onAddNew={handleAddNewTicker}
                   placeholder="SELECT OR ADD TICKER SYMBOLS..."
                   className="bg-input border-2 border-border border-r-0 focus:ring-0 focus:border-primary font-mono uppercase placeholder:text-muted-foreground/60 h-14 text-lg rounded-none"
