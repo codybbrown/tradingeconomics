@@ -21,6 +21,8 @@ import {
 } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
 
+import { getCountryData } from "@/lib/api-helpers";
+
 const mockTableData = [
   {
     id: 1,
@@ -107,6 +109,17 @@ export default function DeveloperShowcase() {
   const [searchTerm, setSearchTerm] = useState("");
   const [filteredTableData, setFilteredTableData] = useState(mockTableData);
   const [filteredCardData, setFilteredCardData] = useState(mockCardData);
+  const [apiData, setApiData] = useState<any>(null);
+
+  const loadData = async () => {
+    try {
+      const data = await getCountryData("mexico");
+      setApiData(data);
+      console.log("API Data:", data);
+    } catch (error) {
+      console.error("Failed to load data:", error);
+    }
+  };
 
   const handleSearch = () => {
     if (!searchTerm.trim()) {
@@ -181,6 +194,9 @@ export default function DeveloperShowcase() {
             API.
           </h3>
         </div>
+        <Button onClick={loadData} className="mb-4">
+          Load Mexico Data
+        </Button>
       </header>
 
       {/* Main Content Container */}
