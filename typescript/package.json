@@ -17,6 +17,7 @@
   },
   "homepage": "https://github.com/tradingeconomics/tradingeconomics#readme",
   "dependencies": {
+    "tradingeconomics": "^2.5.6",
     "tradingeconomics-stream": "^0.2.0"
   },
   "devDependencies": {
