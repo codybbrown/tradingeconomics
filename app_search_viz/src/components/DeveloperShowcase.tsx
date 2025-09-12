@@ -21,6 +21,7 @@ import {
 } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Combobox } from "@/components/ui/combobox";
 
 import {
   getCountryData,
@@ -75,6 +76,18 @@ export default function DeveloperShowcase() {
   const [searchTerm, setSearchTerm] = useState("");
   const [filteredTableData, setFilteredTableData] = useState(mockTableData);
   const [mainStockData, setMainStockData] = useState<any>(null);
+  const [tickerOptions, setTickerOptions] = useState<string[]>([
+    "aapl:us",
+    "msft:us",
+    "googl:us",
+    "amzn:us",
+    "tsla:us",
+    "nvda:us",
+    "jpm:us",
+    "jnj:us",
+    "v:us",
+    "pg:us",
+  ]);
   const [countryData, setCountryData] = useState<any>(null);
   const [searchCategoriesData, setSearchCategoriesData] = useState<any>(null);
   const [stockDescriptionsData, setStockDescriptionsData] = useState<any>(null);
@@ -116,8 +129,8 @@ export default function DeveloperShowcase() {
     }
   };
 
-  const handleSearch = async () => {
-    if (!searchTerm.trim()) {
+  const handleSearch = async (tickerSymbols: string) => {
+    if (!tickerSymbols.trim()) {
       setFilteredTableData(mockTableData);
       setMainStockData(null);
       return;
@@ -125,7 +138,7 @@ export default function DeveloperShowcase() {
 
     // Load stock descriptions for main section
     try {
-      const data = await getStockDescriptions(searchTerm.trim());
+      const data = await getStockDescriptions(tickerSymbols.trim());
       setMainStockData(data);
       console.log("Main Stock Data:", data);
     } catch (error) {
@@ -136,11 +149,22 @@ export default function DeveloperShowcase() {
     // Keep table filtering for API endpoints
     const tableFiltered = mockTableData.filter(
       (item) =>
-        item.endpoint.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        item.method.toLowerCase().includes(searchTerm.toLowerCase())
+        item.endpoint.toLowerCase().includes(tickerSymbols.toLowerCase()) ||
+        item.method.toLowerCase().includes(tickerSymbols.toLowerCase())
     );
 
     setFilteredTableData(tableFiltered);
+  };
+
+  const handleTickerSelect = (value: string) => {
+    setSearchTerm(value);
+    handleSearch(value);
+  };
+
+  const handleAddNewTicker = (newTicker: string) => {
+    if (!tickerOptions.includes(newTicker)) {
+      setTickerOptions((prev) => [...prev, newTicker]);
+    }
   };
 
   const getStatusColor = (status: number) => {
@@ -199,18 +223,17 @@ export default function DeveloperShowcase() {
           <div className="mb-12">
             <div className="flex gap-0 max-w-lg">
               <div className="relative flex-1">
-                <Search className="absolute left-4 top-1/2 transform -translate-y-1/2 text-muted-foreground h-5 w-5" />
-                <Input
-                  type="text"
-                  placeholder="ENTER TICKER SYMBOLS (e.g., aapl:us,msft:us,googl:us)..."
+                <Combobox
+                  options={tickerOptions}
                   value={searchTerm}
-                  onChange={(e) => setSearchTerm(e.target.value)}
-                  onKeyPress={(e) => e.key === "Enter" && handleSearch()}
-                  className="pl-12 bg-input border-2 border-border border-r-0 focus:ring-0 focus:border-primary font-mono uppercase placeholder:text-muted-foreground/60 h-14 text-lg"
+                  onValueChange={handleTickerSelect}
+                  onAddNew={handleAddNewTicker}
+                  placeholder="SELECT OR ADD TICKER SYMBOLS..."
+                  className="bg-input border-2 border-border border-r-0 focus:ring-0 focus:border-primary font-mono uppercase placeholder:text-muted-foreground/60 h-14 text-lg rounded-none"
                 />
               </div>
               <Button
-                onClick={handleSearch}
+                onClick={() => handleSearch(searchTerm)}
                 className="bg-primary hover:bg-primary/90 text-primary-foreground border-2 border-primary font-mono font-black uppercase tracking-wide h-14 px-8"
               >
                 SEARCH
