@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Search } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
@@ -35,6 +35,8 @@ export default function DeveloperShowcase() {
   const [persistentStockCards, setPersistentStockCards] = useState<any[]>([]);
   const [stockSnapshotData, setStockSnapshotData] = useState<any[]>([]);
   const [isUsingMockData, setIsUsingMockData] = useState(false);
+  const [selectedTickers, setSelectedTickers] = useState<string[]>([]);
+  const [isRemoving, setIsRemoving] = useState(false);
   const [tickerOptions, setTickerOptions] = useState<string[]>([
     "aapl:us",
     "msft:us",
@@ -94,6 +96,21 @@ export default function DeveloperShowcase() {
       return;
     }
 
+    // Parse the input tickers
+    const newTickers = tickerSymbols
+      .split(",")
+      .map((t) => t.trim())
+      .filter((t) => t);
+
+    // Add new tickers to the selected list (avoid duplicates)
+    setSelectedTickers((prev) => {
+      const existingTickers = new Set(prev);
+      const uniqueNewTickers = newTickers.filter(
+        (ticker) => !existingTickers.has(ticker)
+      );
+      return [...prev, ...uniqueNewTickers];
+    });
+
     // Load stock descriptions and add to persistent cards
     try {
       const data = await getStockDescriptions(tickerSymbols.trim());
@@ -117,10 +134,23 @@ export default function DeveloperShowcase() {
     // Load stock snapshot data for table
     try {
       const snapshotData = await getStockSnapshot(tickerSymbols.trim());
-      setStockSnapshotData(Array.isArray(snapshotData) ? snapshotData : []);
+
+      // Filter data to only include the new tickers
+      const filteredData = Array.isArray(snapshotData)
+        ? snapshotData.filter((stock: any) => newTickers.includes(stock.Symbol))
+        : [];
+
+      // Add to existing table data
+      setStockSnapshotData((prev) => {
+        const existingSymbols = new Set(prev.map((stock) => stock.Symbol));
+        const newData = filteredData.filter(
+          (stock) => !existingSymbols.has(stock.Symbol)
+        );
+        return [...prev, ...newData];
+      });
 
       // Check if we're using mock data
-      const isMockData = snapshotData.some(
+      const isMockData = filteredData.some(
         (item: any) =>
           item.Name &&
           item.Name.includes("Corporation") &&
@@ -130,11 +160,9 @@ export default function DeveloperShowcase() {
       );
       setIsUsingMockData(isMockData);
 
-      console.log("Stock Snapshot Data:", snapshotData);
+      console.log("New Stock Snapshot Data:", filteredData);
     } catch (error) {
       console.error("Failed to load stock snapshot:", error);
-      setStockSnapshotData([]);
-      setIsUsingMockData(false);
     }
   };
 
@@ -150,13 +178,93 @@ export default function DeveloperShowcase() {
   };
 
   const handleRemoveStockCard = (symbolToRemove: string) => {
-    setPersistentStockCards((prev) =>
-      prev.filter((card) => card.Symbol !== symbolToRemove)
-    );
-    setStockSnapshotData((prev) =>
-      prev.filter((stock) => stock.Symbol !== symbolToRemove)
-    );
+    console.log("Removing stock card:", symbolToRemove);
+
+    // Set removing flag to prevent useEffect from running
+    setIsRemoving(true);
+
+    // Remove from persistent cards
+    setPersistentStockCards((prev) => {
+      const filtered = prev.filter((card) => card.Symbol !== symbolToRemove);
+      console.log("Cards after removal:", filtered);
+      return filtered;
+    });
+
+    // Remove from selected tickers
+    setSelectedTickers((prev) => {
+      const filtered = prev.filter((ticker) => ticker !== symbolToRemove);
+      console.log("Tickers after removal:", filtered);
+      return filtered;
+    });
+
+    // Immediately update table data to remove the ticker
+    setStockSnapshotData((currentData) => {
+      const updatedData = currentData.filter(
+        (stock) => stock.Symbol !== symbolToRemove
+      );
+      console.log("Table data after removal:", updatedData);
+      return updatedData;
+    });
+
+    // Reset removing flag after a short delay
+    setTimeout(() => {
+      setIsRemoving(false);
+    }, 100);
   };
+
+  // Load data whenever selectedTickers changes
+  useEffect(() => {
+    // Don't run if we're in the middle of removing items
+    if (isRemoving) {
+      console.log("Skipping useEffect due to removal in progress");
+      return;
+    }
+
+    const loadData = async () => {
+      if (selectedTickers.length === 0) {
+        setStockSnapshotData([]);
+        setIsUsingMockData(false);
+        return;
+      }
+
+      try {
+        const tickerString = selectedTickers.join(",");
+        const snapshotData = await getStockSnapshot(tickerString);
+
+        // Filter data to only include selected tickers
+        const filteredData = Array.isArray(snapshotData)
+          ? snapshotData.filter((stock: any) =>
+              selectedTickers.includes(stock.Symbol)
+            )
+          : [];
+
+        setStockSnapshotData(filteredData);
+
+        // Check if we're using mock data
+        const isMockData = filteredData.some(
+          (item: any) =>
+            item.Name &&
+            item.Name.includes("Corporation") &&
+            item.Last &&
+            item.Last > 100 &&
+            item.Last < 300
+        );
+        setIsUsingMockData(isMockData);
+
+        console.log("All Ticker Data:", filteredData);
+        console.log("Selected Tickers:", selectedTickers);
+      } catch (error) {
+        console.error("Failed to load all ticker data:", error);
+        setStockSnapshotData([]);
+        setIsUsingMockData(false);
+      }
+    };
+
+    // Only load data when we have tickers
+    if (selectedTickers.length > 0) {
+      loadData();
+    }
+  }, [selectedTickers, isRemoving]);
 
   const headerStyle = {
     backgroundColor: "#000000 !important",
@@ -212,19 +320,9 @@ export default function DeveloperShowcase() {
           <div className="grid lg:grid-cols-2 gap-12">
             {/* Left Side - Stock Comparison Table */}
             <div className="space-y-6">
-              <div className="flex items-center justify-between">
-                <h2 className="font-mono text-3xl font-black text-foreground uppercase tracking-tight">
-                  STOCK COMPARISON
-                </h2>
-                {isUsingMockData && (
-                  <Badge
-                    variant="outline"
-                    className="font-mono font-bold border-2 border-yellow-500 text-yellow-600"
-                  >
-                    DEMO DATA
-                  </Badge>
-                )}
-              </div>
+              <h2 className="font-mono text-3xl font-black text-foreground uppercase tracking-tight">
+                STOCK COMPARISON
+              </h2>
               <div className="border-4 border-border overflow-hidden">
                 <Table>
                   <TableHeader>
@@ -234,33 +332,33 @@ export default function DeveloperShowcase() {
                     >
                       <TableHead
                         style={headerStyle}
-                        className="font-mono font-black uppercase border-r-2 border-border"
+                        className="font-mono font-black uppercase border-r-2 border-border text-white"
                       >
                         Ticker
                       </TableHead>
                       <TableHead
                         style={headerStyle}
-                        className="font-mono font-black uppercase border-r-2 border-border"
+                        className="font-mono font-black uppercase border-r-2 border-border text-white"
                       >
                         Price
                       </TableHead>
                       <TableHead
                         style={headerStyle}
-                        className="font-mono font-black uppercase border-r-2 border-border"
+                        className="font-mono font-black uppercase border-r-2 border-border text-white"
                       >
                         Daily Change
                       </TableHead>
                       <TableHead
                         style={headerStyle}
-                        className="font-mono font-black uppercase border-r-2 border-border"
+                        className="font-mono font-black uppercase border-r-2 border-border text-white"
                       >
                         Market Cap
                       </TableHead>
                       <TableHead
                         style={headerStyle}
-                        className="font-mono font-black uppercase"
+                        className="font-mono font-black uppercase text-white"
                       >
-                        State
+                        Demo Data
                       </TableHead>
                     </TableRow>
                   </TableHeader>
@@ -299,12 +397,21 @@ export default function DeveloperShowcase() {
                               : "N/A"}
                           </TableCell>
                           <TableCell className="font-mono text-muted-foreground">
-                            <Badge
-                              variant="outline"
-                              className="font-mono font-bold border-2 border-border"
-                            >
-                              {stock.State || "N/A"}
-                            </Badge>
+                            {isUsingMockData ? (
+                              <Badge
+                                variant="outline"
+                                className="font-mono font-bold border-2 border-yellow-500 text-yellow-600"
+                              >
+                                DEMO
+                              </Badge>
+                            ) : (
+                              <Badge
+                                variant="outline"
+                                className="font-mono font-bold border-2 border-green-500 text-green-600"
+                              >
+                                LIVE
+                              </Badge>
+                            )}
                           </TableCell>
                         </TableRow>
                       ))
