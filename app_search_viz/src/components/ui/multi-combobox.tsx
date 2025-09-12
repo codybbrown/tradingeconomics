@@ -1,11 +1,10 @@
 "use client";
 
 import * as React from "react";
-import { Check, ChevronsUpDown, X } from "lucide-react";
+import { Check, ChevronsUpDown } from "lucide-react";
 
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
 import {
   Command,
   CommandEmpty,
@@ -58,10 +57,6 @@ export function MultiCombobox({
     setInputValue("");
   };
 
-  const handleRemove = (valueToRemove: string) => {
-    onValuesChange(values.filter((v) => v !== valueToRemove));
-  };
-
   const handleKeyDown = (e: React.KeyboardEvent) => {
     if (e.key === "Enter" && inputValue && !options.includes(inputValue)) {
       if (onAddNew) {
@@ -85,31 +80,13 @@ export function MultiCombobox({
             className
           )}
         >
-          <div className="flex flex-wrap gap-1 flex-1">
-            {values.length > 0 ? (
-              values.map((value) => (
-                <Badge
-                  key={value}
-                  variant="secondary"
-                  className="font-mono text-xs px-1 py-0.5 h-5"
-                >
-                  {value}
-                  <button
-                    type="button"
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      handleRemove(value);
-                    }}
-                    className="ml-1 hover:bg-destructive hover:text-destructive-foreground rounded-full h-3 w-3 flex items-center justify-center"
-                  >
-                    <X className="h-2 w-2" />
-                  </button>
-                </Badge>
-              ))
-            ) : (
-              <span className="text-muted-foreground">{placeholder}</span>
-            )}
-          </div>
+          <span className="text-muted-foreground">
+            {values.length > 0
+              ? `${values.length} ticker${
+                  values.length > 1 ? "s" : ""
+                } selected`
+              : placeholder}
+          </span>
           <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
         </Button>
       </PopoverTrigger>
