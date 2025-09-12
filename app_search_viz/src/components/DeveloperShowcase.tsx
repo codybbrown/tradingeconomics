@@ -75,11 +75,11 @@ const mockTableData = [
 export default function DeveloperShowcase() {
   const [searchTerm, setSearchTerm] = useState("");
   const [filteredTableData, setFilteredTableData] = useState(mockTableData);
-  const [mainStockData, setMainStockData] = useState<any>(null);
+  const [persistentStockCards, setPersistentStockCards] = useState<any[]>([]);
   const [tickerOptions, setTickerOptions] = useState<string[]>([
     "aapl:us",
     "msft:us",
-    "googl:us",
+    "goog:us",
     "amzn:us",
     "tsla:us",
     "nvda:us",
@@ -132,18 +132,27 @@ export default function DeveloperShowcase() {
   const handleSearch = async (tickerSymbols: string) => {
     if (!tickerSymbols.trim()) {
       setFilteredTableData(mockTableData);
-      setMainStockData(null);
       return;
     }
 
-    // Load stock descriptions for main section
+    // Load stock descriptions and add to persistent cards
     try {
       const data = await getStockDescriptions(tickerSymbols.trim());
-      setMainStockData(data);
-      console.log("Main Stock Data:", data);
+
+      // Add new stocks to persistent cards (avoid duplicates)
+      if (Array.isArray(data)) {
+        setPersistentStockCards((prev) => {
+          const existingSymbols = new Set(prev.map((card) => card.Symbol));
+          const newStocks = data.filter(
+            (stock) => !existingSymbols.has(stock.Symbol)
+          );
+          return [...prev, ...newStocks];
+        });
+      }
+
+      console.log("Stock Data:", data);
     } catch (error) {
       console.error("Failed to load stock descriptions:", error);
-      setMainStockData(null);
     }
 
     // Keep table filtering for API endpoints
@@ -165,6 +174,12 @@ export default function DeveloperShowcase() {
     if (!tickerOptions.includes(newTicker)) {
       setTickerOptions((prev) => [...prev, newTicker]);
     }
+  };
+
+  const handleRemoveStockCard = (symbolToRemove: string) => {
+    setPersistentStockCards((prev) =>
+      prev.filter((card) => card.Symbol !== symbolToRemove)
+    );
   };
 
   const getStatusColor = (status: number) => {
@@ -324,12 +339,10 @@ export default function DeveloperShowcase() {
                 STOCK DESCRIPTIONS
               </h2>
               <div className="space-y-6">
-                {mainStockData &&
-                Array.isArray(mainStockData) &&
-                mainStockData.length > 0 ? (
-                  mainStockData.map((stock: any, index: number) => (
+                {persistentStockCards.length > 0 ? (
+                  persistentStockCards.map((stock: any, index: number) => (
                     <Card
-                      key={index}
+                      key={`${stock.Symbol}-${index}`}
                       className="border-4 border-border shadow-none hover:shadow-none bg-card"
                     >
                       <CardHeader className="pb-4">
@@ -337,9 +350,24 @@ export default function DeveloperShowcase() {
                           <CardTitle className="font-mono text-xl font-black text-card-foreground uppercase tracking-tight">
                             {stock.Name || "N/A"}
                           </CardTitle>
-                          <Badge className="bg-primary text-primary-foreground font-mono font-black text-sm">
-                            {stock.Symbol || "N/A"}
-                          </Badge>
+                          <div className="flex items-center gap-2">
+                            <Badge className="bg-primary text-primary-foreground font-mono font-black text-sm">
+                              {stock.Symbol || "N/A"}
+                            </Badge>
+                            <Button
+                              variant="ghost"
+                              size="sm"
+                              onClick={() =>
+                                handleRemoveStockCard(stock.Symbol)
+                              }
+                              className="h-6 w-6 p-0 hover:bg-destructive hover:text-destructive-foreground"
+                            >
+                              <span className="sr-only">
+                                Remove {stock.Name}
+                              </span>
+                              ×
+                            </Button>
+                          </div>
                         </div>
                         <CardDescription className="text-muted-foreground font-bold leading-relaxed">
                           {stock.Description || "No description available"}
@@ -381,9 +409,7 @@ export default function DeveloperShowcase() {
                 ) : (
                   <div className="p-8 text-center">
                     <p className="font-mono text-muted-foreground text-lg">
-                      {mainStockData
-                        ? "No stock data available"
-                        : "Enter ticker symbols above to load stock descriptions"}
+                      Enter ticker symbols above to load stock descriptions
                     </p>
                   </div>
                 )}
