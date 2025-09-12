@@ -36,7 +36,6 @@ export default function DeveloperShowcase() {
   const [stockSnapshotData, setStockSnapshotData] = useState<any[]>([]);
   const [isUsingMockData, setIsUsingMockData] = useState(false);
   const [selectedTickers, setSelectedTickers] = useState<string[]>([]);
-  const [isRemoving, setIsRemoving] = useState(false);
   const [tickerOptions, setTickerOptions] = useState<string[]>([
     "aapl:us",
     "msft:us",
@@ -178,48 +177,39 @@ export default function DeveloperShowcase() {
   };
 
   const handleRemoveStockCard = (symbolToRemove: string) => {
-    console.log("Removing stock card:", symbolToRemove);
-
-    // Set removing flag to prevent useEffect from running
-    setIsRemoving(true);
-
     // Remove from persistent cards
-    setPersistentStockCards((prev) => {
-      const filtered = prev.filter((card) => card.Symbol !== symbolToRemove);
-      console.log("Cards after removal:", filtered);
-      return filtered;
-    });
+    setPersistentStockCards((prev) =>
+      prev.filter((card) => card.Symbol !== symbolToRemove)
+    );
 
     // Remove from selected tickers
-    setSelectedTickers((prev) => {
-      const filtered = prev.filter((ticker) => ticker !== symbolToRemove);
-      console.log("Tickers after removal:", filtered);
-      return filtered;
-    });
+    setSelectedTickers((prev) =>
+      prev.filter((ticker) => ticker !== symbolToRemove)
+    );
 
-    // Immediately update table data to remove the ticker
-    setStockSnapshotData((currentData) => {
-      const updatedData = currentData.filter(
-        (stock) => stock.Symbol !== symbolToRemove
-      );
-      console.log("Table data after removal:", updatedData);
-      return updatedData;
-    });
+    // Remove from table data
+    setStockSnapshotData((prev) =>
+      prev.filter((stock) => stock.Symbol !== symbolToRemove)
+    );
+  };
 
-    // Reset removing flag after a short delay
-    setTimeout(() => {
-      setIsRemoving(false);
-    }, 100);
+  const handleRemoveFromTable = (symbolToRemove: string) => {
+    // Remove from all data sources
+    setPersistentStockCards((prev) =>
+      prev.filter((card) => card.Symbol !== symbolToRemove)
+    );
+
+    setSelectedTickers((prev) =>
+      prev.filter((ticker) => ticker !== symbolToRemove)
+    );
+
+    setStockSnapshotData((prev) =>
+      prev.filter((stock) => stock.Symbol !== symbolToRemove)
+    );
   };
 
   // Load data whenever selectedTickers changes
   useEffect(() => {
-    // Don't run if we're in the middle of removing items
-    if (isRemoving) {
-      console.log("Skipping useEffect due to removal in progress");
-      return;
-    }
-
     const loadData = async () => {
       if (selectedTickers.length === 0) {
         setStockSnapshotData([]);
@@ -250,9 +240,6 @@ export default function DeveloperShowcase() {
             item.Last < 300
         );
         setIsUsingMockData(isMockData);
-
-        console.log("All Ticker Data:", filteredData);
-        console.log("Selected Tickers:", selectedTickers);
       } catch (error) {
         console.error("Failed to load all ticker data:", error);
         setStockSnapshotData([]);
@@ -264,7 +251,7 @@ export default function DeveloperShowcase() {
     if (selectedTickers.length > 0) {
       loadData();
     }
-  }, [selectedTickers, isRemoving]);
+  }, [selectedTickers]);
 
   const headerStyle = {
     backgroundColor: "#000000 !important",
@@ -356,10 +343,14 @@ export default function DeveloperShowcase() {
                       </TableHead>
                       <TableHead
                         style={headerStyle}
-                        className="font-mono font-black uppercase text-white"
+                        className="font-mono font-black uppercase border-r-2 border-border text-white"
                       >
                         Demo Data
                       </TableHead>
+                      <TableHead
+                        style={headerStyle}
+                        className="font-mono font-black uppercase text-white"
+                      ></TableHead>
                     </TableRow>
                   </TableHeader>
                   <TableBody>
@@ -396,7 +387,7 @@ export default function DeveloperShowcase() {
                               ? `$${(stock.MarketCap / 1000000000).toFixed(1)}B`
                               : "N/A"}
                           </TableCell>
-                          <TableCell className="font-mono text-muted-foreground">
+                          <TableCell className="font-mono text-muted-foreground border-r-2 border-border">
                             {isUsingMockData ? (
                               <Badge
                                 variant="outline"
@@ -413,12 +404,27 @@ export default function DeveloperShowcase() {
                               </Badge>
                             )}
                           </TableCell>
+                          <TableCell className="font-mono text-muted-foreground">
+                            <Button
+                              variant="ghost"
+                              size="sm"
+                              onClick={() =>
+                                handleRemoveFromTable(stock.Symbol)
+                              }
+                              className="h-8 w-8 p-0 text-red-500 hover:bg-red-100 hover:text-red-700 text-xl font-bold"
+                            >
+                              <span className="sr-only">
+                                Remove {stock.Symbol}
+                              </span>
+                              ×
+                            </Button>
+                          </TableCell>
                         </TableRow>
                       ))
                     ) : (
                       <TableRow className="hover:bg-muted/50 border-b-2 border-border">
                         <TableCell
-                          colSpan={5}
+                          colSpan={6}
                           className="font-mono text-muted-foreground text-center py-8"
                         >
                           Select ticker symbols to view stock comparison data
