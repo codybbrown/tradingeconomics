@@ -653,7 +653,7 @@ export default function DeveloperShowcase() {
                           </h4>
                         </div>
 
-                        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
                           {/* Inflation Rate */}
                           <div className="space-y-2">
                             <h5 className="font-mono text-sm font-bold text-foreground uppercase">
@@ -681,29 +681,82 @@ export default function DeveloperShowcase() {
                             )}
                           </div>
 
-                          {/* Auto Exports */}
+                          {/* CPI */}
                           <div className="space-y-2">
                             <h5 className="font-mono text-sm font-bold text-foreground uppercase">
-                              Auto Exports
+                              CPI
                             </h5>
-                            {metric.autoExports ? (
+                            {metric.cpi ? (
                               <div className="space-y-1">
                                 <div className="font-mono text-2xl font-black text-primary">
-                                  {metric.autoExports.value}{" "}
-                                  {metric.autoExports.unit}
+                                  {metric.cpi.value} {metric.cpi.unit}
                                 </div>
                                 <div className="font-mono text-xs text-muted-foreground">
-                                  {metric.autoExports.category}
+                                  {metric.cpi.category}
                                 </div>
                                 <div className="font-mono text-xs text-muted-foreground">
                                   {new Date(
-                                    metric.autoExports.date
+                                    metric.cpi.date
                                   ).toLocaleDateString()}
                                 </div>
                               </div>
                             ) : (
                               <div className="font-mono text-sm text-muted-foreground">
-                                No auto exports data available
+                                No CPI data available
+                              </div>
+                            )}
+                          </div>
+
+                          {/* Corruption Index */}
+                          <div className="space-y-2">
+                            <h5 className="font-mono text-sm font-bold text-foreground uppercase">
+                              Corruption Index
+                            </h5>
+                            {metric.corruptionIndex ? (
+                              <div className="space-y-1">
+                                <div className="font-mono text-2xl font-black text-primary">
+                                  {metric.corruptionIndex.value}{" "}
+                                  {metric.corruptionIndex.unit}
+                                </div>
+                                <div className="font-mono text-xs text-muted-foreground">
+                                  {metric.corruptionIndex.category}
+                                </div>
+                                <div className="font-mono text-xs text-muted-foreground">
+                                  {new Date(
+                                    metric.corruptionIndex.date
+                                  ).toLocaleDateString()}
+                                </div>
+                              </div>
+                            ) : (
+                              <div className="font-mono text-sm text-muted-foreground">
+                                No corruption index data available
+                              </div>
+                            )}
+                          </div>
+
+                          {/* Corruption Rank */}
+                          <div className="space-y-2">
+                            <h5 className="font-mono text-sm font-bold text-foreground uppercase">
+                              Corruption Rank
+                            </h5>
+                            {metric.corruptionRank ? (
+                              <div className="space-y-1">
+                                <div className="font-mono text-2xl font-black text-primary">
+                                  {metric.corruptionRank.value}{" "}
+                                  {metric.corruptionRank.unit || "rank"}
+                                </div>
+                                <div className="font-mono text-xs text-muted-foreground">
+                                  {metric.corruptionRank.category}
+                                </div>
+                                <div className="font-mono text-xs text-muted-foreground">
+                                  {new Date(
+                                    metric.corruptionRank.date
+                                  ).toLocaleDateString()}
+                                </div>
+                              </div>
+                            ) : (
+                              <div className="font-mono text-sm text-muted-foreground">
+                                No corruption rank data available
                               </div>
                             )}
                           </div>

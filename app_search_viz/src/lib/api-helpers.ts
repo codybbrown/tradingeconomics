@@ -93,7 +93,7 @@ export const getStockDescriptions = async (symbols: string) => {
   }
 };
 
-// Extract inflation rate and auto exports data from country data
+// Extract inflation rate, CPI, corruption index, and corruption rank data from country data
 export const extractCountryMetrics = (countryData: any[]): any[] => {
   const metrics: any[] = [];
 
@@ -112,43 +112,64 @@ export const extractCountryMetrics = (countryData: any[]): any[] => {
     const countryMetrics: any = {
       country: country,
       inflationRate: null,
-      autoExports: null,
+      cpi: null,
+      corruptionIndex: null,
+      corruptionRank: null,
     };
 
-    // Find inflation rate (look for items with Category containing "inflation" or "prices")
+    // Find inflation rate (look for items with Category exactly "Inflation Rate")
     const inflationItem = data.find(
-      (item: any) =>
-        item.Category &&
-        (item.Category.toLowerCase().includes("inflation") ||
-          item.Category.toLowerCase().includes("consumer price") ||
-          item.Category.toLowerCase().includes("cpi"))
+      (item: any) => item.Category === "Inflation Rate"
     );
 
     if (inflationItem) {
       countryMetrics.inflationRate = {
-        value: inflationItem.Latest,
+        value: inflationItem.LatestValue,
         unit: inflationItem.Unit,
-        date: inflationItem.DateTime,
+        date: inflationItem.LatestValueDate,
         category: inflationItem.Category,
       };
     }
 
-    // Find auto exports (look for items with Category containing "auto" or "vehicle" and "export")
-    const autoExportsItem = data.find(
-      (item: any) =>
-        item.Category &&
-        (item.Category.toLowerCase().includes("auto") ||
-          item.Category.toLowerCase().includes("vehicle") ||
-          item.Category.toLowerCase().includes("motor vehicle")) &&
-        item.Category.toLowerCase().includes("export")
+    // Find CPI (look for items with Category exactly "Consumer Price Index CPI")
+    const cpiItem = data.find(
+      (item: any) => item.Category === "Consumer Price Index CPI"
     );
 
-    if (autoExportsItem) {
-      countryMetrics.autoExports = {
-        value: autoExportsItem.Latest,
-        unit: autoExportsItem.Unit,
-        date: autoExportsItem.DateTime,
-        category: autoExportsItem.Category,
+    if (cpiItem) {
+      countryMetrics.cpi = {
+        value: cpiItem.LatestValue,
+        unit: cpiItem.Unit,
+        date: cpiItem.LatestValueDate,
+        category: cpiItem.Category,
+      };
+    }
+
+    // Find corruption index (look for items with Category exactly "Corruption Index")
+    const corruptionIndexItem = data.find(
+      (item: any) => item.Category === "Corruption Index"
+    );
+
+    if (corruptionIndexItem) {
+      countryMetrics.corruptionIndex = {
+        value: corruptionIndexItem.LatestValue,
+        unit: corruptionIndexItem.Unit,
+        date: corruptionIndexItem.LatestValueDate,
+        category: corruptionIndexItem.Category,
+      };
+    }
+
+    // Find corruption rank (look for items with Category exactly "Corruption Rank")
+    const corruptionRankItem = data.find(
+      (item: any) => item.Category === "Corruption Rank"
+    );
+
+    if (corruptionRankItem) {
+      countryMetrics.corruptionRank = {
+        value: corruptionRankItem.LatestValue,
+        unit: corruptionRankItem.Unit,
+        date: corruptionRankItem.LatestValueDate,
+        category: corruptionRankItem.Category,
       };
     }
 
