@@ -190,18 +190,18 @@ export default function DeveloperShowcase() {
       <header className="border-b-4 border-border bg-card">
         <div className="container mx-auto px-6 py-12">
           <h1 className="font-mono text-5xl font-black text-foreground mb-4 uppercase tracking-tight">
-            TE Stock information
+            TE STOCK & COUNTRY DATA
           </h1>
           <p className="text-xl text-muted-foreground font-bold uppercase tracking-wide mb-2">
             LIVE{" "}
             <span className="px-2 py-1 bg-secondary text-secondary-foreground">
               TRADING ECONOMICS
             </span>{" "}
-            SYMBOL SEARCH & VISUALIZATION
+            API DATA
           </p>
           <h3 className="text-sm text-muted-foreground text-stone-00 italic tracking-wide mt-4">
-            Built with React, Tailwind CSS, Shadcn UI, and Trading Economics
-            API.
+            Built by Cody Brown with React, Tailwind CSS, Shadcn UI, and Trading
+            Economics API.
           </h3>
         </div>
       </header>
