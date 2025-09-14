@@ -52,7 +52,8 @@ export default function DeveloperShowcase() {
 
   const loadCountryData = async () => {
     try {
-      const data = await getCountryData("mexico");
+      // You can now pass an array of countries
+      const data = await getCountryData(["mexico", "sweden"]);
       setCountryData(data);
       console.log("Country Data:", data);
     } catch (error) {
@@ -446,7 +447,7 @@ export default function DeveloperShowcase() {
         <div className="mt-12">
           <div className="flex justify-between items-center mb-6">
             <h2 className="font-mono text-3xl font-black text-foreground uppercase tracking-tight">
-              API DATA
+              OTHER API DATA
             </h2>
           </div>
           <Tabs defaultValue="country-data" className="w-full">
@@ -456,7 +457,7 @@ export default function DeveloperShowcase() {
                 className="font-mono font-black uppercase tracking-wide data-[state=active]:px-2 data-[state=active]:py-1 data-[state=active]:bg-secondary data-[state=active]:text-secondary-foreground"
                 onClick={loadCountryData}
               >
-                Load Mexico Data
+                Load Multi-Country Data
               </TabsTrigger>
               <TabsTrigger
                 value="categories"
