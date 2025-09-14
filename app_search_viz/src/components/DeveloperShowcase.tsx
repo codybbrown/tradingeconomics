@@ -207,7 +207,7 @@ export default function DeveloperShowcase() {
                   values={multiSelectedTickers}
                   onValuesChange={handleTickerSelect}
                   onAddNew={handleAddNewTicker}
-                  placeholder="SELECT OR ADD TICKER SYMBOLS..."
+                  placeholder="SELECT OR SEARCH SYMBOLS..."
                   className="bg-input border-2 border-border border-r-0 focus:ring-0 focus:border-primary font-mono uppercase placeholder:text-muted-foreground/60 h-14 text-lg rounded-none"
                 />
               </div>
@@ -220,7 +220,7 @@ export default function DeveloperShowcase() {
             </div>
           </div>
 
-          {/* Content Grid */}
+          {/* Main Content Grid */}
           <div className="grid lg:grid-cols-2 gap-12">
             {/* Left Side - Stock Comparison Table */}
             <div className="space-y-6">
@@ -309,7 +309,7 @@ export default function DeveloperShowcase() {
               </div>
             </div>
 
-            {/* Right Side - Stock Cards */}
+            {/* Right Side - Description Cards */}
             <div className="space-y-6">
               <h2 className="font-mono text-3xl font-black text-foreground uppercase tracking-tight">
                 SYMBOL DESCRIPTION
