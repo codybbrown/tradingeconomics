@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { Search } from "lucide-react";
+import { Search, ChevronRight, ChevronDown } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -30,6 +30,7 @@ export default function DeveloperShowcase() {
   const [multiSelectedTickers, setMultiSelectedTickers] = useState<string[]>(
     []
   );
+  const [expandedCards, setExpandedCards] = useState<Set<string>>(new Set());
   const [tickerOptions, setTickerOptions] = useState<string[]>([
     "aapl:us",
     "msft:us",
@@ -116,6 +117,20 @@ export default function DeveloperShowcase() {
           const newStocks = data.filter(
             (stock) => !existingSymbols.has(stock.Symbol?.toLowerCase())
           );
+
+          // Expand only the new cards, collapse all others
+          if (newStocks.length > 0) {
+            setExpandedCards(() => {
+              const newSet = new Set<string>();
+              newStocks.forEach((stock) => {
+                if (stock.Symbol) {
+                  newSet.add(stock.Symbol.toLowerCase());
+                }
+              });
+              return newSet;
+            });
+          }
+
           return [...prev, ...newStocks];
         });
       }
@@ -168,6 +183,26 @@ export default function DeveloperShowcase() {
         (ticker) => ticker.toLowerCase() !== symbolToRemove.toLowerCase()
       )
     );
+
+    // Remove from expanded cards
+    setExpandedCards((prev) => {
+      const newSet = new Set(prev);
+      newSet.delete(symbolToRemove.toLowerCase());
+      return newSet;
+    });
+  };
+
+  const toggleCardExpansion = (symbol: string) => {
+    setExpandedCards((prev) => {
+      const newSet = new Set(prev);
+      const symbolLower = symbol.toLowerCase();
+      if (newSet.has(symbolLower)) {
+        newSet.delete(symbolLower);
+      } else {
+        newSet.add(symbolLower);
+      }
+      return newSet;
+    });
   };
 
   const headerStyle = {
@@ -229,51 +264,73 @@ export default function DeveloperShowcase() {
               </h2>
               <div className="space-y-6">
                 {persistentStockCards.length > 0 ? (
-                  persistentStockCards.map((stock: any, index: number) => (
-                    <Card
-                      key={`${stock.Symbol}-${index}`}
-                      className="border-4 border-border shadow-none hover:shadow-none bg-card"
-                    >
-                      <CardHeader className="pb-4">
-                        <div className="flex items-start justify-between">
-                          <CardTitle className="font-mono text-xl font-black text-card-foreground uppercase tracking-tight">
-                            {stock.Name || "N/A"}
-                          </CardTitle>
-                          <div className="flex items-center gap-2">
-                            <Badge className="bg-primary text-primary-foreground font-mono font-black text-sm">
-                              {stock.Symbol || "N/A"}
-                            </Badge>
-                            <Button
-                              variant="ghost"
-                              size="sm"
-                              onClick={() =>
-                                handleRemoveStockCard(stock.Symbol)
-                              }
-                              className="h-6 w-6 p-0 hover:bg-destructive hover:text-destructive-foreground"
-                            >
-                              <span className="sr-only">
-                                Remove {stock.Name}
-                              </span>
-                              ×
-                            </Button>
+                  persistentStockCards.map((stock: any, index: number) => {
+                    const isExpanded = expandedCards.has(
+                      stock.Symbol?.toLowerCase() || ""
+                    );
+                    return (
+                      <Card
+                        key={`${stock.Symbol}-${index}`}
+                        className="border-4 border-border shadow-none hover:shadow-none bg-card"
+                      >
+                        <CardHeader
+                          className="pb-4 cursor-pointer"
+                          onClick={() =>
+                            toggleCardExpansion(stock.Symbol || "")
+                          }
+                        >
+                          <div className="flex items-start justify-between">
+                            <div className="flex items-center gap-2">
+                              {isExpanded ? (
+                                <ChevronDown className="h-4 w-4 text-muted-foreground" />
+                              ) : (
+                                <ChevronRight className="h-4 w-4 text-muted-foreground" />
+                              )}
+                              <CardTitle className="font-mono text-xl font-black text-card-foreground uppercase tracking-tight">
+                                {stock.Name || "N/A"}
+                              </CardTitle>
+                            </div>
+                            <div className="flex items-center gap-2">
+                              <Badge className="bg-primary text-primary-foreground font-mono font-black text-sm">
+                                {stock.Symbol || "N/A"}
+                              </Badge>
+                              <Button
+                                variant="ghost"
+                                size="sm"
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  handleRemoveStockCard(stock.Symbol);
+                                }}
+                                className="h-6 w-6 p-0 hover:bg-destructive hover:text-destructive-foreground"
+                              >
+                                <span className="sr-only">
+                                  Remove {stock.Name}
+                                </span>
+                                ×
+                              </Button>
+                            </div>
                           </div>
-                        </div>
-                        <div className="text-muted-foreground font-bold leading-relaxed mt-2">
-                          {stock.Description || "No description available"}
-                        </div>
-                      </CardHeader>
-                      <CardContent className="pt-0">
-                        <div className="flex flex-wrap gap-2">
-                          <Badge
-                            variant="outline"
-                            className="font-mono font-bold border-2 border-border"
-                          >
-                            {stock.Country || "N/A"}
-                          </Badge>
-                        </div>
-                      </CardContent>
-                    </Card>
-                  ))
+                          {isExpanded && (
+                            <div className="text-muted-foreground font-bold leading-relaxed mt-2">
+                              {stock.Description || "No description available"}
+                            </div>
+                          )}
+                        </CardHeader>
+                        {isExpanded && (
+                          <CardContent className="pt-0">
+                            <div className="flex flex-wrap gap-2">
+                              <Badge
+                                variant="outline"
+                                className="font-mono font-bold border-2 border-border"
+                              >
+                                {stock.Country || "N/A"}
+                              </Badge>
+                            </div>
+                          </CardContent>
+                        )}
+                      </Card>
+                    );
+                  })
                 ) : (
                   <div className="p-8 text-center">
                     {selectedTickers.length > 0 ? (
