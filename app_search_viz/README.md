@@ -2,6 +2,13 @@
 
 A React-based web application that provides real-time stock information and country economic data using the Trading Economics API. Built with modern web technologies including React 19, TypeScript, Tailwind CSS, and Shadcn UI components.
 
+## Screenshot
+
+![App Overview 1](top-section.png)
+![App Overview 2](bottom-section.png)
+
+_Main interface showing stock search functionality and country economic data visualization_
+
 ## Features
 
 - **Stock Symbol Search**: Search and visualize stock information by ticker symbols with expandable description cards
