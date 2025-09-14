@@ -222,94 +222,7 @@ export default function DeveloperShowcase() {
 
           {/* Main Content Grid */}
           <div className="grid lg:grid-cols-2 gap-12">
-            {/* Left Side - Stock Comparison Table */}
-            <div className="space-y-6">
-              <h2 className="font-mono text-3xl font-black text-foreground uppercase tracking-tight">
-                SYMBOL DATA
-              </h2>
-              <div className="border-4 border-border overflow-hidden">
-                <Table>
-                  <TableHeader>
-                    <TableRow
-                      style={{ backgroundColor: "#000000" }}
-                      className="hover:bg-black"
-                    >
-                      <TableHead
-                        style={headerStyle}
-                        className="font-mono font-black uppercase border-r-2 border-border text-white"
-                      >
-                        Name
-                      </TableHead>
-                      <TableHead
-                        style={headerStyle}
-                        className="font-mono font-black uppercase border-r-2 border-border text-white"
-                      >
-                        Sector
-                      </TableHead>
-                      <TableHead
-                        style={headerStyle}
-                        className="font-mono font-black uppercase border-r-2 border-border text-white"
-                      >
-                        Industry
-                      </TableHead>
-                      <TableHead
-                        style={headerStyle}
-                        className="font-mono font-black uppercase text-white"
-                      >
-                        Sub-industry
-                      </TableHead>
-                    </TableRow>
-                  </TableHeader>
-                  <TableBody>
-                    {persistentStockCards.length > 0 ? (
-                      persistentStockCards.map((stock: any, index: number) => (
-                        <TableRow
-                          key={index}
-                          className="hover:bg-muted/50 border-b-2 border-border"
-                        >
-                          <TableCell className="font-mono font-bold text-foreground border-r-2 border-border">
-                            {stock.Name || "N/A"}
-                          </TableCell>
-                          <TableCell className="font-mono text-muted-foreground border-r-2 border-border">
-                            {stock.Sector || "N/A"}
-                          </TableCell>
-                          <TableCell className="font-mono text-muted-foreground border-r-2 border-border">
-                            {stock.Industry || "N/A"}
-                          </TableCell>
-                          <TableCell className="font-mono text-muted-foreground">
-                            {stock.Subindustry || "N/A"}
-                          </TableCell>
-                        </TableRow>
-                      ))
-                    ) : (
-                      <TableRow className="hover:bg-muted/50 border-b-2 border-border">
-                        <TableCell
-                          colSpan={4}
-                          className="font-mono text-muted-foreground text-center py-8"
-                        >
-                          {selectedTickers.length > 0 ? (
-                            <div className="space-y-2">
-                              <div className="text-lg font-bold">
-                                No stock descriptions available for selected
-                                tickers
-                              </div>
-                              <div className="text-sm">
-                                The selected tickers may not have description
-                                data available
-                              </div>
-                            </div>
-                          ) : (
-                            "Select ticker symbols to view stock descriptions"
-                          )}
-                        </TableCell>
-                      </TableRow>
-                    )}
-                  </TableBody>
-                </Table>
-              </div>
-            </div>
-
-            {/* Right Side - Description Cards */}
+            {/* Left Side - Description Cards */}
             <div className="space-y-6">
               <h2 className="font-mono text-3xl font-black text-foreground uppercase tracking-tight">
                 SYMBOL DESCRIPTION
@@ -380,6 +293,93 @@ export default function DeveloperShowcase() {
                     )}
                   </div>
                 )}
+              </div>
+            </div>
+
+            {/* Right Side - Stock Comparison Table */}
+            <div className="space-y-6">
+              <h2 className="font-mono text-3xl font-black text-foreground uppercase tracking-tight">
+                SYMBOL DATA
+              </h2>
+              <div className="border-4 border-border overflow-hidden">
+                <Table>
+                  <TableHeader>
+                    <TableRow
+                      style={{ backgroundColor: "#000000" }}
+                      className="hover:bg-black"
+                    >
+                      <TableHead
+                        style={headerStyle}
+                        className="font-mono font-black uppercase border-r-2 border-border text-white"
+                      >
+                        Name
+                      </TableHead>
+                      <TableHead
+                        style={headerStyle}
+                        className="font-mono font-black uppercase border-r-2 border-border text-white"
+                      >
+                        Sector
+                      </TableHead>
+                      <TableHead
+                        style={headerStyle}
+                        className="font-mono font-black uppercase border-r-2 border-border text-white"
+                      >
+                        Industry
+                      </TableHead>
+                      <TableHead
+                        style={headerStyle}
+                        className="font-mono font-black uppercase border-r-2 border-border text-white"
+                      >
+                        Sub-industry
+                      </TableHead>
+                    </TableRow>
+                  </TableHeader>
+                  <TableBody>
+                    {persistentStockCards.length > 0 ? (
+                      persistentStockCards.map((stock: any, index: number) => (
+                        <TableRow
+                          key={index}
+                          className="hover:bg-muted/50 border-b-2 border-border"
+                        >
+                          <TableCell className="font-mono font-bold text-foreground border-r-2 border-border">
+                            {stock.Name || "N/A"}
+                          </TableCell>
+                          <TableCell className="font-mono text-muted-foreground border-r-2 border-border">
+                            {stock.Sector || "N/A"}
+                          </TableCell>
+                          <TableCell className="font-mono text-muted-foreground border-r-2 border-border">
+                            {stock.Industry || "N/A"}
+                          </TableCell>
+                          <TableCell className="font-mono text-muted-foreground">
+                            {stock.Subindustry || "N/A"}
+                          </TableCell>
+                        </TableRow>
+                      ))
+                    ) : (
+                      <TableRow className="hover:bg-muted/50 border-b-2 border-border">
+                        <TableCell
+                          colSpan={4}
+                          className="font-mono text-muted-foreground text-center py-8"
+                        >
+                          {selectedTickers.length > 0 ? (
+                            <div className="space-y-2">
+                              <div className="text-lg font-bold">
+                                No stock descriptions available for selected
+                                tickers
+                              </div>
+                              <div className="text-sm">
+                                The selected tickers may not have description
+                                data available
+                              </div>
+                            </div>
+                          ) : (
+                            "Select ticker symbols to view stock descriptions"
+                          )}
+                        </TableCell>
+                      </TableRow>
+                    )}
+                  </TableBody>
+                </Table>
               </div>
             </div>
           </div>
