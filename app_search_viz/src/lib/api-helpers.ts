@@ -92,3 +92,68 @@ export const getStockDescriptions = async (symbols: string) => {
     throw error;
   }
 };
+
+// Extract inflation rate and auto exports data from country data
+export const extractCountryMetrics = (countryData: any[]): any[] => {
+  const metrics: any[] = [];
+
+  // Group data by country
+  const countryGroups = countryData.reduce((acc: any, item: any) => {
+    const country = item.Country || "Unknown";
+    if (!acc[country]) {
+      acc[country] = [];
+    }
+    acc[country].push(item);
+    return acc;
+  }, {});
+
+  // Extract metrics for each country
+  Object.entries(countryGroups).forEach(([country, data]: [string, any]) => {
+    const countryMetrics: any = {
+      country: country,
+      inflationRate: null,
+      autoExports: null,
+    };
+
+    // Find inflation rate (look for items with Category containing "inflation" or "prices")
+    const inflationItem = data.find(
+      (item: any) =>
+        item.Category &&
+        (item.Category.toLowerCase().includes("inflation") ||
+          item.Category.toLowerCase().includes("consumer price") ||
+          item.Category.toLowerCase().includes("cpi"))
+    );
+
+    if (inflationItem) {
+      countryMetrics.inflationRate = {
+        value: inflationItem.Latest,
+        unit: inflationItem.Unit,
+        date: inflationItem.DateTime,
+        category: inflationItem.Category,
+      };
+    }
+
+    // Find auto exports (look for items with Category containing "auto" or "vehicle" and "export")
+    const autoExportsItem = data.find(
+      (item: any) =>
+        item.Category &&
+        (item.Category.toLowerCase().includes("auto") ||
+          item.Category.toLowerCase().includes("vehicle") ||
+          item.Category.toLowerCase().includes("motor vehicle")) &&
+        item.Category.toLowerCase().includes("export")
+    );
+
+    if (autoExportsItem) {
+      countryMetrics.autoExports = {
+        value: autoExportsItem.Latest,
+        unit: autoExportsItem.Unit,
+        date: autoExportsItem.DateTime,
+        category: autoExportsItem.Category,
+      };
+    }
+
+    metrics.push(countryMetrics);
+  });
+
+  return metrics;
+};
