@@ -208,7 +208,7 @@ export default function DeveloperShowcase() {
                   onValuesChange={handleTickerSelect}
                   onAddNew={handleAddNewTicker}
                   placeholder="SELECT OR SEARCH SYMBOLS..."
-                  className="bg-input border-2 border-border border-r-0 focus:ring-0 focus:border-primary font-mono uppercase placeholder:text-muted-foreground/60 h-14 text-lg rounded-none"
+                  className="bg-input border-2 border-border border-r-0 focus:ring-0 focus:border-primary font-mono uppercase placeholder:text-muted-foreground/60 h-14 text-lg rounded-none hover:bg-input"
                 />
               </div>
               <Button
