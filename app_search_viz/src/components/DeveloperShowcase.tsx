@@ -51,11 +51,8 @@ export default function DeveloperShowcase() {
       // Extract inflation rate, CPI, and corruption metrics
       const metrics = extractCountryMetrics(data);
       setCountryMetrics(metrics);
-
-      console.log("Country Data:", data);
-      console.log("Country Metrics:", metrics);
     } catch (error) {
-      console.error("Failed to load country data:", error);
+      // Handle error silently or show user-friendly message
     }
   };
 
@@ -64,11 +61,11 @@ export default function DeveloperShowcase() {
       return;
     }
 
-    // Parse the input tickers
+    // Parse and validate the input tickers
     const newTickers = tickerSymbols
       .split(",")
       .map((t) => t.trim())
-      .filter((t) => t);
+      .filter((t) => t && /^[a-zA-Z0-9:]+$/.test(t)); // Only allow alphanumeric and colon characters
 
     // Add new tickers to the selected list (avoid duplicates)
     setSelectedTickers((prev) => {
@@ -109,10 +106,8 @@ export default function DeveloperShowcase() {
           return [...prev, ...newStocks];
         });
       }
-
-      console.log("Stock Data:", data);
     } catch (error) {
-      console.error("Failed to load stock descriptions:", error);
+      // Handle error silently or show user-friendly message
     }
   };
 

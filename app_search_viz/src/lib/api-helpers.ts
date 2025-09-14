@@ -1,5 +1,16 @@
 import axios from "axios";
+
 const API_KEY = import.meta.env.VITE_TRADING_ECONOMICS_API_KEY;
+
+// Input sanitization function
+const sanitizeInput = (input: string): string => {
+  return input.trim().replace(/[^a-zA-Z0-9:,\s-]/g, "");
+};
+
+// Validate API key
+if (!API_KEY) {
+  throw new Error("VITE_TRADING_ECONOMICS_API_KEY is not defined");
+}
 
 // Rate limiter utility
 const delay = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms));
@@ -13,7 +24,6 @@ const makeRateLimitedRequest = async (url: string, config: any = {}) => {
 
   if (timeSinceLastCall < MIN_DELAY_MS) {
     const delayTime = MIN_DELAY_MS - timeSinceLastCall;
-    console.log(`Rate limiting: waiting ${delayTime}ms before next API call`);
     await delay(delayTime);
   }
 
@@ -25,11 +35,16 @@ export const getCountryData = async (countries: string | string[]) => {
   try {
     const countryArray = Array.isArray(countries) ? countries : [countries];
 
+    // Sanitize country names
+    const sanitizedCountries = countryArray.map((country) =>
+      sanitizeInput(country)
+    );
+
     // Make sequential API calls with delays to avoid rate limiting
     const allData = [];
 
-    for (let i = 0; i < countryArray.length; i++) {
-      const country = countryArray[i];
+    for (let i = 0; i < sanitizedCountries.length; i++) {
+      const country = sanitizedCountries[i];
 
       try {
         const response = await makeRateLimitedRequest(
@@ -42,18 +57,16 @@ export const getCountryData = async (countries: string | string[]) => {
         );
 
         allData.push(...response.data);
-        console.log(`Fetched data for ${country}:`, response.data);
       } catch (error) {
-        console.error(`Error fetching data for ${country}:`, error);
         // Continue with other countries even if one fails
       }
     }
 
-    console.log("API Data for countries:", countryArray, allData);
     return allData;
   } catch (error) {
-    console.error("Error fetching country data:", error);
-    throw error;
+    // Log error for debugging but don't expose details to client
+    console.error("Error fetching country data");
+    throw new Error("Failed to fetch country data");
   }
 };
 
@@ -67,24 +80,25 @@ export const listSearchTerms = async () => {
         },
       }
     );
-    console.log("API Search Categories:", response.data);
     return response.data;
   } catch (error) {
-    console.error("Error fetching search categories:", error);
-    throw error;
+    console.error("Error fetching search categories");
+    throw new Error("Failed to fetch search categories");
   }
 };
 
 export const getStockDescriptions = async (symbols: string) => {
   try {
+    // Sanitize symbols input
+    const sanitizedSymbols = sanitizeInput(symbols);
+
     const response = await makeRateLimitedRequest(
-      `https://api.tradingeconomics.com/markets/stockdescriptions/symbol/${symbols}?c=guest:guest&f=json`
+      `https://api.tradingeconomics.com/markets/stockdescriptions/symbol/${sanitizedSymbols}?c=guest:guest&f=json`
     );
-    console.log("API Stock Descriptions:", response.data);
     return response.data;
   } catch (error) {
-    console.error("Error fetching stock descriptions:", error);
-    throw error;
+    console.error("Error fetching stock descriptions");
+    throw new Error("Failed to fetch stock descriptions");
   }
 };
 

@@ -17,4 +17,26 @@ export default defineConfig({
   optimizeDeps: {
     include: ["tradingeconomics"],
   },
+  server: {
+    headers: {
+      "X-Content-Type-Options": "nosniff",
+      "X-Frame-Options": "DENY",
+      "X-XSS-Protection": "1; mode=block",
+    },
+  },
+  build: {
+    rollupOptions: {
+      output: {
+        manualChunks: {
+          vendor: ["react", "react-dom"],
+          ui: [
+            "@radix-ui/react-dialog",
+            "@radix-ui/react-popover",
+            "@radix-ui/react-slot",
+            "@radix-ui/react-tabs",
+          ],
+        },
+      },
+    },
+  },
 });
