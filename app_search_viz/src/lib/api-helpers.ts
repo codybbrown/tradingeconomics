@@ -6,9 +6,7 @@ const delay = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms));
 
 // Track API calls to implement rate limiting
 let lastApiCall = 0;
-const MIN_DELAY_MS = 1000; // Minimum 1 second between API calls
-
-// Rate-limited API call function
+const MIN_DELAY_MS = 1000;
 const makeRateLimitedRequest = async (url: string, config: any = {}) => {
   const now = Date.now();
   const timeSinceLastCall = now - lastApiCall;
@@ -25,9 +23,6 @@ const makeRateLimitedRequest = async (url: string, config: any = {}) => {
 
 export const getCountryData = async (countries: string | string[]) => {
   try {
-    // console.log("API Key:", API_KEY);
-
-    // Convert single country to array for consistent handling
     const countryArray = Array.isArray(countries) ? countries : [countries];
 
     // Make sequential API calls with delays to avoid rate limiting
@@ -117,7 +112,7 @@ export const extractCountryMetrics = (countryData: any[]): any[] => {
       corruptionRank: null,
     };
 
-    // Find inflation rate (look for items with Category exactly "Inflation Rate")
+    // Find inflation rate
     const inflationItem = data.find(
       (item: any) => item.Category === "Inflation Rate"
     );
@@ -131,7 +126,7 @@ export const extractCountryMetrics = (countryData: any[]): any[] => {
       };
     }
 
-    // Find CPI (look for items with Category exactly "Consumer Price Index CPI")
+    // Find CPI
     const cpiItem = data.find(
       (item: any) => item.Category === "Consumer Price Index CPI"
     );
@@ -145,7 +140,7 @@ export const extractCountryMetrics = (countryData: any[]): any[] => {
       };
     }
 
-    // Find corruption index (look for items with Category exactly "Corruption Index")
+    // Find corruption index
     const corruptionIndexItem = data.find(
       (item: any) => item.Category === "Corruption Index"
     );
@@ -159,7 +154,7 @@ export const extractCountryMetrics = (countryData: any[]): any[] => {
       };
     }
 
-    // Find corruption rank (look for items with Category exactly "Corruption Rank")
+    // Find corruption rank
     const corruptionRankItem = data.find(
       (item: any) => item.Category === "Corruption Rank"
     );
