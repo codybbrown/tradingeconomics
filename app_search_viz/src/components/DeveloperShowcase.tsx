@@ -13,12 +13,10 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { MultiCombobox } from "@/components/ui/multi-combobox";
 
 import {
   getCountryData,
-  listSearchTerms,
   getStockDescriptions,
   extractCountryMetrics,
 } from "@/lib/api-helpers";
@@ -43,17 +41,14 @@ export default function DeveloperShowcase() {
     "v:us",
     "pg:us",
   ]);
-  const [countryData, setCountryData] = useState<any>(null);
-  const [searchCategoriesData, setSearchCategoriesData] = useState<any>(null);
   const [countryMetrics, setCountryMetrics] = useState<any[]>([]);
 
   const loadCountryData = async () => {
     try {
       // You can now pass an array of countries
       const data = await getCountryData(["mexico", "sweden", "thailand"]);
-      setCountryData(data);
 
-      // Extract inflation rate and auto exports metrics
+      // Extract inflation rate, CPI, and corruption metrics
       const metrics = extractCountryMetrics(data);
       setCountryMetrics(metrics);
 
@@ -61,16 +56,6 @@ export default function DeveloperShowcase() {
       console.log("Country Metrics:", metrics);
     } catch (error) {
       console.error("Failed to load country data:", error);
-    }
-  };
-
-  const loadSearchTermCategories = async () => {
-    try {
-      const data = await listSearchTerms();
-      setSearchCategoriesData(data);
-      console.log("Search Categories Data:", data);
-    } catch (error) {
-      console.error("Failed to load search categories:", error);
     }
   };
 
@@ -432,350 +417,163 @@ export default function DeveloperShowcase() {
           </div>
         </div>
 
-        {/* API Data Table */}
+        {/* Country Data Section */}
         <div className="mt-12">
-          <div className="flex justify-between items-center mb-6">
-            <h2 className="font-mono text-3xl font-black text-foreground uppercase tracking-tight">
-              OTHER API DATA
-            </h2>
-          </div>
-          <Tabs defaultValue="country-data" className="w-full">
-            <TabsList className="grid w-full grid-cols-3 bg-muted">
-              <TabsTrigger
-                value="country-data"
-                className="font-mono font-black uppercase tracking-wide data-[state=active]:px-2 data-[state=active]:py-1 data-[state=active]:bg-secondary data-[state=active]:text-secondary-foreground"
-                onClick={loadCountryData}
-              >
-                Load Multi-Country Data
-              </TabsTrigger>
-              <TabsTrigger
-                value="categories"
-                className="font-mono font-black uppercase tracking-wide data-[state=active]:px-2 data-[state=active]:py-1 data-[state=active]:bg-secondary data-[state=active]:text-secondary-foreground"
-                onClick={loadSearchTermCategories}
-              >
-                List Available Search Terms
-              </TabsTrigger>
-              <TabsTrigger
-                value="country-metrics"
-                className="font-mono font-black uppercase tracking-wide data-[state=active]:px-2 data-[state=active]:py-1 data-[state=active]:bg-secondary data-[state=active]:text-secondary-foreground"
-                onClick={() => {}} // No separate load function needed
-              >
-                Country Metrics
-              </TabsTrigger>
-            </TabsList>
+          <div className="bg-card border-4 border-border shadow-none p-8">
+            <div className="mb-12">
+              <h2 className="font-mono text-3xl font-black text-foreground uppercase tracking-tight mb-4">
+                COUNTRY DATA
+              </h2>
+            </div>
 
-            <TabsContent value="country-data">
-              <div className="border-4 border-border overflow-hidden">
-                {countryData &&
-                Array.isArray(countryData) &&
-                countryData.length > 0 ? (
-                  <Table>
-                    <TableHeader>
-                      <TableRow
-                        style={{ backgroundColor: "#000000" }}
-                        className="hover:bg-black"
-                      >
-                        <TableHead
-                          style={headerStyle}
-                          className="font-mono font-black uppercase border-r-2 border-border"
-                        >
-                          Category
-                        </TableHead>
-                        <TableHead
-                          style={headerStyle}
-                          className="font-mono font-black uppercase border-r-2 border-border"
-                        >
-                          Latest Value
-                        </TableHead>
-                        <TableHead
-                          style={headerStyle}
-                          className="font-mono font-black uppercase border-r-2 border-border"
-                        >
-                          Previous Value
-                        </TableHead>
-                        <TableHead
-                          style={headerStyle}
-                          className="font-mono font-black uppercase border-r-2 border-border"
-                        >
-                          Unit
-                        </TableHead>
-                        <TableHead
-                          style={headerStyle}
-                          className="font-mono font-black uppercase border-r-2 border-border"
-                        >
-                          Group
-                        </TableHead>
-                        <TableHead
-                          style={headerStyle}
-                          className="font-mono font-black uppercase"
-                        >
-                          Date
-                        </TableHead>
-                      </TableRow>
-                    </TableHeader>
-                    <TableBody>
-                      {countryData.map((item: any, index: number) => (
-                        <TableRow
-                          key={index}
-                          className="hover:bg-muted/50 border-b-2 border-border"
-                        >
-                          <TableCell className="font-mono font-bold text-foreground border-r-2 border-border">
-                            {item.Category || "N/A"}
-                          </TableCell>
-                          <TableCell className="font-mono text-foreground border-r-2 border-border">
-                            <Badge className="bg-primary text-primary-foreground font-mono font-black">
-                              {item.LatestValue !== null &&
-                              item.LatestValue !== undefined
-                                ? typeof item.LatestValue === "number"
-                                  ? item.LatestValue.toLocaleString()
-                                  : item.LatestValue
-                                : "N/A"}
-                            </Badge>
-                          </TableCell>
-                          <TableCell className="font-mono text-muted-foreground border-r-2 border-border">
-                            {item.PreviousValue !== null &&
-                            item.PreviousValue !== undefined
-                              ? typeof item.PreviousValue === "number"
-                                ? item.PreviousValue.toLocaleString()
-                                : item.PreviousValue
-                              : "N/A"}
-                          </TableCell>
-                          <TableCell className="font-mono text-muted-foreground border-r-2 border-border">
-                            {item.Unit || "N/A"}
-                          </TableCell>
-                          <TableCell className="font-mono text-muted-foreground border-r-2 border-border">
-                            <Badge
-                              variant="outline"
-                              className="font-mono font-bold border-2 border-border"
-                            >
-                              {item.CategoryGroup || "N/A"}
-                            </Badge>
-                          </TableCell>
-                          <TableCell className="font-mono text-muted-foreground">
-                            {item.LatestValueDate
-                              ? new Date(
-                                  item.LatestValueDate
-                                ).toLocaleDateString()
-                              : "N/A"}
-                          </TableCell>
-                        </TableRow>
-                      ))}
-                    </TableBody>
-                  </Table>
-                ) : (
-                  <div className="p-8 text-center">
-                    <p className="font-mono text-muted-foreground text-lg">
-                      {countryData
-                        ? "No data available"
-                        : 'Click "Load Mexico Data" to fetch API data'}
-                    </p>
-                  </div>
-                )}
+            {/* Load Button and Metrics Info Row */}
+            <div className="flex gap-6 items-start mb-8">
+              {/* Load Button */}
+              <div className="flex-shrink-0">
+                <Button
+                  onClick={loadCountryData}
+                  className="bg-purple-600 hover:bg-purple-700 text-white border-2 border-purple-600 font-mono font-black uppercase tracking-wide h-20 px-12 text-xl"
+                >
+                  LOAD
+                </Button>
               </div>
-            </TabsContent>
 
-            <TabsContent value="categories">
-              <div className="border-4 border-border overflow-hidden">
-                {searchCategoriesData &&
-                Array.isArray(searchCategoriesData) &&
-                searchCategoriesData.length > 0 ? (
-                  <Table>
-                    <TableHeader>
-                      <TableRow
-                        style={{ backgroundColor: "#000000" }}
-                        className="hover:bg-black"
-                      >
-                        <TableHead
-                          style={headerStyle}
-                          className="font-mono font-black uppercase border-r-2 border-border"
-                        >
-                          #
-                        </TableHead>
-                        <TableHead
-                          style={headerStyle}
-                          className="font-mono font-black uppercase"
-                        >
-                          Category
-                        </TableHead>
-                      </TableRow>
-                    </TableHeader>
-                    <TableBody>
-                      {searchCategoriesData.map((item: any, index: number) => (
-                        <TableRow
-                          key={index}
-                          className="hover:bg-muted/50 border-b-2 border-border"
-                        >
-                          <TableCell className="font-mono font-bold text-foreground border-r-2 border-border">
-                            <Badge className="bg-primary text-primary-foreground font-mono font-black">
-                              {index + 1}
-                            </Badge>
-                          </TableCell>
-                          <TableCell className="font-mono text-foreground">
-                            {item.Categories || "N/A"}
-                          </TableCell>
-                        </TableRow>
-                      ))}
-                    </TableBody>
-                  </Table>
-                ) : (
-                  <div className="p-8 text-center">
-                    <p className="font-mono text-muted-foreground text-lg">
-                      {searchCategoriesData
-                        ? "No data available"
-                        : 'Click "List Search Terms" to fetch categories'}
-                    </p>
-                  </div>
-                )}
+              {/* Country Metrics Info Box */}
+              <div className="flex-1 p-4 bg-muted border-2 border-border">
+                <p className="font-mono text-sm text-muted-foreground">
+                  <strong>Country Metrics:</strong> This section displays
+                  inflation rate, CPI, corruption index, and corruption rank for
+                  three of the countries available from the Trading Economics
+                  API using the free developer account.
+                </p>
               </div>
-            </TabsContent>
+            </div>
 
-            <TabsContent value="country-metrics">
-              <div className="border-4 border-border overflow-hidden">
-                {countryMetrics.length > 0 ? (
-                  <div className="space-y-4 p-6">
-                    <div className="mb-6">
-                      <h3 className="font-mono text-xl font-black text-foreground uppercase mb-4">
-                        Inflation Rate & Auto Exports by Country
-                      </h3>
-                      <p className="font-mono text-muted-foreground text-sm">
-                        Data extracted from country economic indicators
-                      </p>
+            {/* Country Metrics Cards */}
+            {countryMetrics.length > 0 && (
+              <div className="space-y-6">
+                {countryMetrics.map((metric, index) => (
+                  <div
+                    key={index}
+                    className="border-2 border-border p-6 bg-card"
+                  >
+                    <div className="flex items-start justify-between mb-4">
+                      <h4 className="font-mono text-lg font-black text-foreground uppercase">
+                        {metric.country}
+                      </h4>
                     </div>
 
-                    {countryMetrics.map((metric, index) => (
-                      <div
-                        key={index}
-                        className="border-2 border-border p-6 bg-card"
-                      >
-                        <div className="flex items-start justify-between mb-4">
-                          <h4 className="font-mono text-lg font-black text-foreground uppercase">
-                            {metric.country}
-                          </h4>
-                        </div>
-
-                        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-                          {/* Inflation Rate */}
-                          <div className="space-y-2">
-                            <h5 className="font-mono text-sm font-bold text-foreground uppercase">
-                              Inflation Rate
-                            </h5>
-                            {metric.inflationRate ? (
-                              <div className="space-y-1">
-                                <div className="font-mono text-2xl font-black text-primary">
-                                  {metric.inflationRate.value}{" "}
-                                  {metric.inflationRate.unit}
-                                </div>
-                                <div className="font-mono text-xs text-muted-foreground">
-                                  {metric.inflationRate.category}
-                                </div>
-                                <div className="font-mono text-xs text-muted-foreground">
-                                  {new Date(
-                                    metric.inflationRate.date
-                                  ).toLocaleDateString()}
-                                </div>
-                              </div>
-                            ) : (
-                              <div className="font-mono text-sm text-muted-foreground">
-                                No inflation data available
-                              </div>
-                            )}
+                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+                      {/* Inflation Rate */}
+                      <div className="space-y-2">
+                        <h5 className="font-mono text-sm font-bold text-foreground uppercase">
+                          Inflation Rate
+                        </h5>
+                        {metric.inflationRate ? (
+                          <div className="space-y-1">
+                            <div className="font-mono text-2xl font-black text-primary">
+                              {metric.inflationRate.value}{" "}
+                              {metric.inflationRate.unit}
+                            </div>
+                            <div className="font-mono text-xs text-muted-foreground">
+                              {metric.inflationRate.category}
+                            </div>
+                            <div className="font-mono text-xs text-muted-foreground">
+                              {new Date(
+                                metric.inflationRate.date
+                              ).toLocaleDateString()}
+                            </div>
                           </div>
-
-                          {/* CPI */}
-                          <div className="space-y-2">
-                            <h5 className="font-mono text-sm font-bold text-foreground uppercase">
-                              CPI
-                            </h5>
-                            {metric.cpi ? (
-                              <div className="space-y-1">
-                                <div className="font-mono text-2xl font-black text-primary">
-                                  {metric.cpi.value} {metric.cpi.unit}
-                                </div>
-                                <div className="font-mono text-xs text-muted-foreground">
-                                  {metric.cpi.category}
-                                </div>
-                                <div className="font-mono text-xs text-muted-foreground">
-                                  {new Date(
-                                    metric.cpi.date
-                                  ).toLocaleDateString()}
-                                </div>
-                              </div>
-                            ) : (
-                              <div className="font-mono text-sm text-muted-foreground">
-                                No CPI data available
-                              </div>
-                            )}
+                        ) : (
+                          <div className="font-mono text-sm text-muted-foreground">
+                            No inflation data available
                           </div>
-
-                          {/* Corruption Index */}
-                          <div className="space-y-2">
-                            <h5 className="font-mono text-sm font-bold text-foreground uppercase">
-                              Corruption Index
-                            </h5>
-                            {metric.corruptionIndex ? (
-                              <div className="space-y-1">
-                                <div className="font-mono text-2xl font-black text-primary">
-                                  {metric.corruptionIndex.value}{" "}
-                                  {metric.corruptionIndex.unit}
-                                </div>
-                                <div className="font-mono text-xs text-muted-foreground">
-                                  {metric.corruptionIndex.category}
-                                </div>
-                                <div className="font-mono text-xs text-muted-foreground">
-                                  {new Date(
-                                    metric.corruptionIndex.date
-                                  ).toLocaleDateString()}
-                                </div>
-                              </div>
-                            ) : (
-                              <div className="font-mono text-sm text-muted-foreground">
-                                No corruption index data available
-                              </div>
-                            )}
-                          </div>
-
-                          {/* Corruption Rank */}
-                          <div className="space-y-2">
-                            <h5 className="font-mono text-sm font-bold text-foreground uppercase">
-                              Corruption Rank
-                            </h5>
-                            {metric.corruptionRank ? (
-                              <div className="space-y-1">
-                                <div className="font-mono text-2xl font-black text-primary">
-                                  {metric.corruptionRank.value}{" "}
-                                  {metric.corruptionRank.unit || "rank"}
-                                </div>
-                                <div className="font-mono text-xs text-muted-foreground">
-                                  {metric.corruptionRank.category}
-                                </div>
-                                <div className="font-mono text-xs text-muted-foreground">
-                                  {new Date(
-                                    metric.corruptionRank.date
-                                  ).toLocaleDateString()}
-                                </div>
-                              </div>
-                            ) : (
-                              <div className="font-mono text-sm text-muted-foreground">
-                                No corruption rank data available
-                              </div>
-                            )}
-                          </div>
-                        </div>
+                        )}
                       </div>
-                    ))}
+
+                      {/* CPI */}
+                      <div className="space-y-2">
+                        <h5 className="font-mono text-sm font-bold text-foreground uppercase">
+                          CPI
+                        </h5>
+                        {metric.cpi ? (
+                          <div className="space-y-1">
+                            <div className="font-mono text-2xl font-black text-primary">
+                              {metric.cpi.value} {metric.cpi.unit}
+                            </div>
+                            <div className="font-mono text-xs text-muted-foreground">
+                              {metric.cpi.category}
+                            </div>
+                            <div className="font-mono text-xs text-muted-foreground">
+                              {new Date(metric.cpi.date).toLocaleDateString()}
+                            </div>
+                          </div>
+                        ) : (
+                          <div className="font-mono text-sm text-muted-foreground">
+                            No CPI data available
+                          </div>
+                        )}
+                      </div>
+
+                      {/* Corruption Index */}
+                      <div className="space-y-2">
+                        <h5 className="font-mono text-sm font-bold text-foreground uppercase">
+                          Corruption Index
+                        </h5>
+                        {metric.corruptionIndex ? (
+                          <div className="space-y-1">
+                            <div className="font-mono text-2xl font-black text-primary">
+                              {metric.corruptionIndex.value}{" "}
+                              {metric.corruptionIndex.unit}
+                            </div>
+                            <div className="font-mono text-xs text-muted-foreground">
+                              {metric.corruptionIndex.category}
+                            </div>
+                            <div className="font-mono text-xs text-muted-foreground">
+                              {new Date(
+                                metric.corruptionIndex.date
+                              ).toLocaleDateString()}
+                            </div>
+                          </div>
+                        ) : (
+                          <div className="font-mono text-sm text-muted-foreground">
+                            No corruption index data available
+                          </div>
+                        )}
+                      </div>
+
+                      {/* Corruption Rank */}
+                      <div className="space-y-2">
+                        <h5 className="font-mono text-sm font-bold text-foreground uppercase">
+                          Corruption Rank
+                        </h5>
+                        {metric.corruptionRank ? (
+                          <div className="space-y-1">
+                            <div className="font-mono text-2xl font-black text-primary">
+                              {metric.corruptionRank.value}{" "}
+                              {metric.corruptionRank.unit || "rank"}
+                            </div>
+                            <div className="font-mono text-xs text-muted-foreground">
+                              {metric.corruptionRank.category}
+                            </div>
+                            <div className="font-mono text-xs text-muted-foreground">
+                              {new Date(
+                                metric.corruptionRank.date
+                              ).toLocaleDateString()}
+                            </div>
+                          </div>
+                        ) : (
+                          <div className="font-mono text-sm text-muted-foreground">
+                            No corruption rank data available
+                          </div>
+                        )}
+                      </div>
+                    </div>
                   </div>
-                ) : (
-                  <div className="p-8 text-center">
-                    <p className="font-mono text-muted-foreground text-lg">
-                      {countryData
-                        ? "No metrics data available - try loading country data first"
-                        : 'Click "Load Multi-Country Data" to fetch country metrics'}
-                    </p>
-                  </div>
-                )}
+                ))}
               </div>
-            </TabsContent>
-          </Tabs>
+            )}
+          </div>
         </div>
       </main>
     </div>

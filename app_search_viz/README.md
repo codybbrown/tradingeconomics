@@ -1,69 +1,39 @@
-# React + TypeScript + Vite
+# Trading Economics Stock Search & Visualization
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+A React-based web application that provides real-time stock information and country economic data using the Trading Economics API. Built with modern web technologies including React 19, TypeScript, Tailwind CSS, and Shadcn UI components.
 
-Currently, two official plugins are available:
+## Features
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Babel](https://babeljs.io/) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+- **Stock Symbol Search**: Search and visualize stock information by ticker symbols with expandable description cards
+- **Multi-Select Interface**: Select multiple stocks simultaneously using a custom multi-combobox component
+- **Stock Data Table**: View detailed stock information including name, sector, industry, and sub-industry
+- **Country Economic Metrics**: Display inflation rate, CPI, corruption index, and corruption rank for selected countries
+- **Real-time Data**: Live data from Trading Economics API with built-in rate limiting
+- **Responsive Design**: Modern UI with dark theme and monospace typography
 
-## Expanding the ESLint configuration
+## Tech Stack
 
-If you are developing a production application, we recommend updating the configuration to enable type-aware lint rules:
+- React 19 with TypeScript
+- Vite for build tooling
+- Tailwind CSS for styling
+- Shadcn UI components
+- Trading Economics API
+- Axios for HTTP requests
 
-```js
-export default tseslint.config([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
+## API Integration
 
-      // Remove tseslint.configs.recommended and replace with this
-      ...tseslint.configs.recommendedTypeChecked,
-      // Alternatively, use this for stricter rules
-      ...tseslint.configs.strictTypeChecked,
-      // Optionally, add this for stylistic rules
-      ...tseslint.configs.stylisticTypeChecked,
+The app integrates with Trading Economics API endpoints for:
 
-      // Other configs...
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
-```
+- Stock descriptions and metadata
+- Country economic indicators
+- Real-time financial data
 
-You can also install [eslint-plugin-react-x](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-x) and [eslint-plugin-react-dom](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-dom) for React-specific lint rules:
+Built with rate limiting to respect API constraints and ensure optimal performance.
 
-```js
-// eslint.config.js
-import reactX from 'eslint-plugin-react-x'
-import reactDom from 'eslint-plugin-react-dom'
+## Futher Development
 
-export default tseslint.config([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
-      // Enable lint rules for React
-      reactX.configs['recommended-typescript'],
-      // Enable lint rules for React DOM
-      reactDom.configs.recommended,
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
-```
+Other features to develop:
+
+- Graph to display the corruption data
+- Stock financial data such as daily close, market cap, and % change
+- The ability to search and display arbitrary country data and display in the same way as the stocks section
